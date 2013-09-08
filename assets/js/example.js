@@ -14,7 +14,7 @@ function initialize() {
     pov : {
       heading : 55,
       pitch : 0,
-      zoom : 1
+      zoom : 0
     }
   };
   
@@ -30,6 +30,7 @@ function getCustomPanoramaTileUrl(panoID, zoom, tileX, tileY) {
   // Return a pano image given the panoID.
   //return "images/PanoTest/"+tileX+"-"+tileY+".jpg";
   return "images/"+panoID+".jpg"
+  //return "images/ba2_1_4096.jpg"
 }
 
 function getCustomPanorama(panoID) {
