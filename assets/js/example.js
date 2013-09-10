@@ -10,7 +10,7 @@ function initialize() {
   var streetViewOptions = {
     zoom: 1,
     panoProvider:  getCustomPanorama,
-    pano: "ba2_1",
+    pano: "Pano01",
     pov : {
       heading : 55,
       pitch : 0,
@@ -38,25 +38,39 @@ function getCustomPanorama(panoID) {
     links: [],
     copyright: 'Imagery (c) Masashi Katsumata',
     tiles: {
-        tileSize: new google.maps.Size(4096, 2048),
-        worldSize: new google.maps.Size(4096, 2048),
+        tileSize: new google.maps.Size(2048, 1024),
+        worldSize: new google.maps.Size(2048, 1024),
         centerHeading: 140,
         getTileUrl: getCustomPanoramaTileUrl
      }
   };
 
   switch(panoID) {
-    case "ba2_1":
+    case "Pano01":
       streetViewPanoramaData["location"] = {
-        pano: 'ba2_1',
+        pano: 'Pano01',
         description: "BA 2 FotoNr: 1",
       };
       return streetViewPanoramaData;
     
-    case "pano_test":
+    case "ba2_2":
       streetViewPanoramaData["location"] = {
-        pano: "pano_test",
-        description: "Test Foto",
+        pano: "ba2_2",
+        description: "BA 2 FotoNr: 2"
+      };
+      return streetViewPanoramaData;
+    
+    case "ba2_3":
+      streetViewPanoramaData["location"] = {
+        pano: "ba2_3",
+        description: "BA 2 FotoNr: 3",
+      };
+      return streetViewPanoramaData;
+    
+    case "ba2_4":
+      streetViewPanoramaData["location"] = {
+        pano: "ba2_4",
+        description: "BA 2 FotoNr: 4",
       };
       return streetViewPanoramaData;
   }
@@ -73,19 +87,43 @@ function createCustomLink() {
 
 
   switch(panoID) {
-    case "ba2_1":
+    case "Pano01":
       links.push({
-        description : "Zum Test Foto",
-        pano : "pano_test",
+        description : "Zum Eingang",
+        pano : "ba2_2",
         heading : 71
+      },{
+        description: "Zur Treppe",
+        pano: "ba2_3",
+        heading: 350
+      },{
+        description: "S1",
+        pano: "ba2_4",
+        heading: 320
       });
       break;
       
-    case "pano_test":
+    case "ba2_2":
       links.push({
-        description : "Zur BA2",
+        description : "Zur Treppe",
+        pano : "ba2_3",
+        heading : 150
+      });
+      break;
+
+  case "ba2_3":
+      links.push({
+        description : "S1",
+        pano : "ba2_4",
+        heading : 320
+      });
+      break;
+
+  case "ba2_4":
+      links.push({
+        description : "Zum Sekretariat",
         pano : "ba2_1",
-        heading : 248
+        heading : 150
       });
       break;
   } 
