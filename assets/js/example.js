@@ -148,7 +148,19 @@ function createCustomLink() {
       links.push({
         description : "",
         pano : "campus03",
-        heading : 160
+        heading : 170
+      },{
+        description: "",
+        pano: "campus04",
+        heading: 80
+      },{
+        description: "",
+        pano: "campus05",
+        heading: 260
+      },{
+        description: "",
+        pano: "campus01",
+        heading: 350
       });
       break;
 
@@ -157,13 +169,17 @@ function createCustomLink() {
         description : "",
         pano : "campus04",
         heading : 20
+      },{
+        description: "",
+        pano: "campus02",
+        heading: 320
       });
       break;
 
   case "campus04":
       links.push({
         description : "",
-        pano : "campus05",
+        pano : "campus02",
         heading : 250
       });
       break;
