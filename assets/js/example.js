@@ -10,7 +10,7 @@ function initialize() {
   var streetViewOptions = {
     zoom: 1,
     panoProvider:  getCustomPanorama,
-    pano: "Pano01",
+    pano: "campus01",
     pov : {
       heading : 55,
       pitch : 0,
@@ -29,14 +29,14 @@ function initialize() {
 function getCustomPanoramaTileUrl(panoID, zoom, tileX, tileY) {
   // Return a pano image given the panoID.
   //return "images/PanoTest/"+tileX+"-"+tileY+".jpg";
-  return "images/"+panoID+".jpg"
+  return "images/2048x1024/"+panoID+".jpg"
   //return "images/ba2_1_4096.jpg"
 }
 
 function getCustomPanorama(panoID) {
   var streetViewPanoramaData = {
     links: [],
-    copyright: 'Imagery (c) Masashi Katsumata',
+    copyright: 'Imagery (c) VCL',
     tiles: {
         tileSize: new google.maps.Size(2048, 1024),
         worldSize: new google.maps.Size(2048, 1024),
@@ -46,31 +46,80 @@ function getCustomPanorama(panoID) {
   };
 
   switch(panoID) {
-    case "Pano01":
+    case "campus01":
       streetViewPanoramaData["location"] = {
-        pano: 'Pano01',
-        description: "BA 2 FotoNr: 1",
+        pano: 'campus01',
+        description: "Campus 01",
       };
       return streetViewPanoramaData;
     
-    case "ba2_2":
+    case "campus02":
       streetViewPanoramaData["location"] = {
-        pano: "ba2_2",
-        description: "BA 2 FotoNr: 2"
+        pano: "campus02",
+        description: "Campus 02"
       };
       return streetViewPanoramaData;
     
-    case "ba2_3":
+    case "campus03":
       streetViewPanoramaData["location"] = {
-        pano: "ba2_3",
-        description: "BA 2 FotoNr: 3",
+        pano: "campus03",
+        description: "Campus 03",
       };
       return streetViewPanoramaData;
     
-    case "ba2_4":
+    case "campus04":
       streetViewPanoramaData["location"] = {
-        pano: "ba2_4",
-        description: "BA 2 FotoNr: 4",
+        pano: "campus04",
+        description: "Campus 04",
+      };
+      return streetViewPanoramaData;
+
+    case "campus04":
+      streetViewPanoramaData["location"] = {
+        pano: "campus04",
+        description: "Campus 04",
+      };
+      return streetViewPanoramaData;
+
+    case "campus05":
+      streetViewPanoramaData["location"] = {
+        pano: "campus05",
+        description: "Campus 05",
+      };
+      return streetViewPanoramaData;
+
+    case "ba201":
+      streetViewPanoramaData["location"] = {
+        pano: "ba201",
+        description: "BA2 01",
+      };
+      return streetViewPanoramaData;
+
+    case "ba202":
+      streetViewPanoramaData["location"] = {
+        pano: "ba202",
+        description: "BA2 02",
+      };
+      return streetViewPanoramaData;
+
+    case "ba203":
+      streetViewPanoramaData["location"] = {
+        pano: "ba203",
+        description: "BA2 03",
+      };
+      return streetViewPanoramaData;
+
+    case "ba204":
+      streetViewPanoramaData["location"] = {
+        pano: "ba204",
+        description: "BA2 04",
+      };
+      return streetViewPanoramaData;
+
+    case "ba205":
+      streetViewPanoramaData["location"] = {
+        pano: "ba205",
+        description: "BA2 05",
       };
       return streetViewPanoramaData;
   }
@@ -87,46 +136,77 @@ function createCustomLink() {
 
 
   switch(panoID) {
-    case "Pano01":
+    case "campus01":
       links.push({
-        description : "Zum Eingang",
-        pano : "ba2_2",
-        heading : 71
-      },{
-        description: "Zur Treppe",
-        pano: "ba2_3",
-        heading: 350
-      },{
-        description: "S1",
-        pano: "ba2_4",
-        heading: 320
+        description : "",
+        pano : "campus02",
+        heading : 80
       });
       break;
       
-    case "ba2_2":
+    case "campus02":
       links.push({
-        description : "Zur Treppe",
-        pano : "ba2_3",
+        description : "",
+        pano : "campus03",
+        heading : 160
+      });
+      break;
+
+  case "campus03":
+      links.push({
+        description : "",
+        pano : "campus04",
+        heading : 20
+      });
+      break;
+
+  case "campus04":
+      links.push({
+        description : "",
+        pano : "campus05",
+        heading : 250
+      });
+      break;
+  case "campus05":
+      links.push({
+        description : "Foyer BA2",
+        pano : "ba201",
+        heading : 220
+      });
+      break;
+
+  case "ba201":
+      links.push({
+        description : "",
+        pano : "ba202",
+        heading : 160
+      });
+      break;
+
+  case "ba202":
+      links.push({
+        description : "",
+        pano : "ba203",
         heading : 150
       });
       break;
 
-  case "ba2_3":
+  case "ba203":
       links.push({
-        description : "S1",
-        pano : "ba2_4",
-        heading : 320
+        description : "",
+        pano : "ba204",
+        heading : 80
       });
       break;
 
-  case "ba2_4":
+  case "ba204":
       links.push({
-        description : "Zum Sekretariat",
-        pano : "ba2_1",
-        heading : 150
+        description : "Eingang Campus",
+        pano : "campus01",
+        heading : 60
       });
       break;
-  } 
+  }
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);
