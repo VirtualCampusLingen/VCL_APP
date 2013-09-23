@@ -1,177 +1,228 @@
 
 var initPosPanoID, streetView;
 
-      function initialize() {
-        //In front of Ardenwood.
-        // var initPos = new google.maps.LatLng(37.55631,-122.051153);  
+function initialize() {
+  //In front of Ardenwood.
+  // var initPos = new google.maps.LatLng(37.55631,-122.051153);  
 
-        // Set StreetView provider.
+  // Set StreetView provider.
 
-        var streetViewOptions1 = {
-          zoom: 1,
-          pano: "test",
-          panoProvider:  getCustomPanorama1,
-          pov : {
-            heading : 55,
-            pitch : 0,
-            zoom : 1
-          }
-        };
-        
-        // Create a StreetView object.
-        var streetViewDiv = document.getElementById('map-canvas');
-        streetViewDiv.style.fontSize = "15px";
-        streetView1 = new google.maps.StreetViewPanorama(streetViewDiv, streetViewOptions1);
+  var streetViewOptions = {
+    zoom: 1,
+    panoProvider:  getCustomPanorama,
+    pano: "campus01",
+    pov : {
+      heading : 55,
+      pitch : 0,
+      zoom : 0
+    }
+  };
+  
+  // Create a StreetView object.
+  var streetViewDiv = document.getElementById('map-canvas');
+  streetViewDiv.style.fontSize = "15px";
+  streetView = new google.maps.StreetViewPanorama(streetViewDiv, streetViewOptions);
+  
+  google.maps.event.addListener(streetView, "links_changed", createCustomLink);
+}
 
-        // Add links when it happens "links_change" event.
-        //google.maps.event.addListener(streetView, "links_changed", createCustomLink);
+function getCustomPanoramaTileUrl(panoID, zoom, tileX, tileY) {
+  // Return a pano image given the panoID.
+  //return "images/PanoTest/"+tileX+"-"+tileY+".jpg";
+  return "images/2048x1024/"+panoID+".jpg"
+  //return "images/ba2_1_4096.jpg"
+}
 
+function getCustomPanorama(panoID) {
+  var streetViewPanoramaData = {
+    links: [],
+    copyright: 'Imagery (c) VCL',
+    tiles: {
+        tileSize: new google.maps.Size(2048, 1024),
+        worldSize: new google.maps.Size(2048, 1024),
+        centerHeading: 140,
+        getTileUrl: getCustomPanoramaTileUrl
+     }
+  };
 
+  switch(panoID) {
+    case "campus01":
+      streetViewPanoramaData["location"] = {
+        pano: 'campus01',
+        description: "Campus 01",
+      };
+      return streetViewPanoramaData;
+    
+    case "campus02":
+      streetViewPanoramaData["location"] = {
+        pano: "campus02",
+        description: "Campus 02"
+      };
+      return streetViewPanoramaData;
+    
+    case "campus03":
+      streetViewPanoramaData["location"] = {
+        pano: "campus03",
+        description: "Campus 03",
+      };
+      return streetViewPanoramaData;
+    
+    case "campus04":
+      streetViewPanoramaData["location"] = {
+        pano: "campus04",
+        description: "Campus 04",
+      };
+      return streetViewPanoramaData;
 
+    case "campus04":
+      streetViewPanoramaData["location"] = {
+        pano: "campus04",
+        description: "Campus 04",
+      };
+      return streetViewPanoramaData;
 
+    case "campus05":
+      streetViewPanoramaData["location"] = {
+        pano: "campus05",
+        description: "Campus 05",
+      };
+      return streetViewPanoramaData;
 
+    case "ba201":
+      streetViewPanoramaData["location"] = {
+        pano: "ba201",
+        description: "BA2 01",
+      };
+      return streetViewPanoramaData;
 
+    case "ba202":
+      streetViewPanoramaData["location"] = {
+        pano: "ba202",
+        description: "BA2 02",
+      };
+      return streetViewPanoramaData;
 
+    case "ba203":
+      streetViewPanoramaData["location"] = {
+        pano: "ba203",
+        description: "BA2 03",
+      };
+      return streetViewPanoramaData;
 
-        var streetViewOptions = {
-          zoom: 1,
-          pano: "visitor_center",
-          panoProvider:  getCustomPanorama,
-          pov : {
-            heading : 55,
-            pitch : 0,
-            zoom : 1
-          }
-        };
-        
-        // Create a StreetView object.
-        var streetViewDiv = document.getElementById('map-canvas');
-        streetViewDiv.style.fontSize = "15px";
-        streetView = new google.maps.StreetViewPanorama(streetViewDiv, streetViewOptions);
+    case "ba204":
+      streetViewPanoramaData["location"] = {
+        pano: "ba204",
+        description: "BA2 04",
+      };
+      return streetViewPanoramaData;
 
-        // Add links when it happens "links_change" event.
-        google.maps.event.addListener(streetView, "links_changed", createCustomLink);
-
-
-
-
-        // Create a StreetViewService object.
-        // var streetviewService = new google.maps.StreetViewService();
-        
-        // // Get panorama ID of initPos
-        // var radius = 50;
-        // streetviewService.getPanoramaByLocation(initPos, radius, function(result, status) {
-        //   if (status == google.maps.StreetViewStatus.OK) {
-        //     initPosPanoID = result.location.pano;
-        //     streetView.setPosition(result.location.latLng);
-        //   }
-        // });
-        
-      }
-
-      function getCustomPanoramaTileUrl(panoID, zoom, tileX, tileY) {
-        // Return a pano image given the panoID.
-        return 'images/Pano2zu1.jpg';
-      }
-
-      function getCustomPanoramaTileUrl1(panoID, zoom, tileX, tileY) {
-        // Return a pano image given the panoID.
-        return 'images/bild.jpg';
-      }
-
-      function getCustomPanorama(panoID) {
-        var streetViewPanoramaData = {
-          links: [],
-          copyright: 'Imagery (c) Masashi Katsumata',
-          tiles: {
-              tileSize: new google.maps.Size(256, 256),
-              worldSize: new google.maps.Size(2048, 1024),
-              centerHeading: 0,
-              getTileUrl: getCustomPanoramaTileUrl
-           }
-        };
-
-        var streetViewPanoramaData1 = {
-          links: [],
-          copyright: 'Imagery (c) Masashi Katsumata',
-          tiles: {
-              tileSize: new google.maps.Size(256, 256),
-              worldSize: new google.maps.Size(2048, 1024),
-              centerHeading: 0,
-              getTileUrl: getCustomPanoramaTileUrl1
-           }
-        };
-
-        switch(panoID) {
-          case "visitor_center":
-            streetViewPanoramaData["location"] = {
-              pano: 'visitor_center',
-              description: "Visitor center",
-              latLng: new google.maps.LatLng(37.556429,-122.050745)
-            };
-            return streetViewPanoramaData;
-          case "test":
-            console.log("blub");
-            streetViewPanoramaData1["location"] = {
-              pano: "test",
-              description: "Visitor center",
-              latLng: new google.maps.LatLng(37.556429,-122.050745)
-            };
-            return streetViewPanoramaData1;
-        }
-      }
-
-      function getCustomPanorama1(panoID) {
-        var streetViewPanoramaData1 = {
-          links: [],
-          copyright: 'Imagery (c) Masashi Katsumata',
-          tiles: {
-              tileSize: new google.maps.Size(256, 256),
-              worldSize: new google.maps.Size(2048, 1024),
-              centerHeading: 0,
-              getTileUrl: getCustomPanoramaTileUrl1
-           }
-        };
-        switch(panoID) {
-          case "test":
-            streetViewPanoramaData1["location"] = {
-              pano: "test",
-              description: "Keksee",
-              latLng: new google.maps.LatLng(37.556429,-122.050745)
-            };
-            return streetViewPanoramaData1;
-        }
-      }
+    case "ba205":
+      streetViewPanoramaData["location"] = {
+        pano: "ba205",
+        description: "BA2 05",
+      };
+      return streetViewPanoramaData;
+  }
+}
 
 
 
+function createCustomLink() {
+  /*
+   * add links
+   */
+  var links = streetView.getLinks();
+  var panoID = streetView.getPano();
 
-      function createCustomLink() {
-        /*
-         * add links
-         */
-        var links = streetView.getLinks();
-        var panoID = streetView.getPano();
 
+  switch(panoID) {
+    case "campus01":
+      links.push({
+        description : "",
+        pano : "campus02",
+        heading : 80
+      });
+      break;
+      
+    case "campus02":
+      links.push({
+        description : "",
+        pano : "campus03",
+        heading : 170
+      },{
+        description: "",
+        pano: "campus04",
+        heading: 80
+      },{
+        description: "",
+        pano: "campus05",
+        heading: 260
+      },{
+        description: "",
+        pano: "campus01",
+        heading: 350
+      });
+      break;
 
-        switch(panoID) {
-          case "test":
-            console.log("drin");
-            links.push({
-              description : "Welcome to Ardenwood",
-              pano : "visitor_center",
-              heading : 71
-            });
-            break;
-            
-          case "visitor_center":
-            links.push({
-              description : "Parking",
-              pano : "test",
-              heading : 248
-            });
-            break;
-        } 
-      }
+  case "campus03":
+      links.push({
+        description : "",
+        pano : "campus04",
+        heading : 20
+      },{
+        description: "",
+        pano: "campus02",
+        heading: 320
+      });
+      break;
 
-      google.maps.event.addDomListener(window, 'load', initialize);
+  case "campus04":
+      links.push({
+        description : "",
+        pano : "campus02",
+        heading : 250
+      });
+      break;
+  case "campus05":
+      links.push({
+        description : "Foyer BA2",
+        pano : "ba201",
+        heading : 220
+      });
+      break;
+
+  case "ba201":
+      links.push({
+        description : "",
+        pano : "ba202",
+        heading : 160
+      });
+      break;
+
+  case "ba202":
+      links.push({
+        description : "",
+        pano : "ba203",
+        heading : 150
+      });
+      break;
+
+  case "ba203":
+      links.push({
+        description : "",
+        pano : "ba204",
+        heading : 80
+      });
+      break;
+
+  case "ba204":
+      links.push({
+        description : "Eingang Campus",
+        pano : "campus01",
+        heading : 60
+      });
+      break;
+  }
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
