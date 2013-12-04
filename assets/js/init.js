@@ -10,9 +10,9 @@ function initialize() {
   var streetViewOptions = {
     zoom: 1,
     panoProvider:  getCustomPanorama,
-    pano: "campus01",
+    pano: "1",
     pov : {
-      heading : 55,
+      heading : 270,
       pitch : 0,
       zoom : 0
     }
@@ -27,25 +27,57 @@ function initialize() {
 }
 
 function getCustomPanoramaTileUrl(panoID, zoom, tileX, tileY) {
+//function getCustomPanoramaTileUrl(panoID, path) {
   // Return a pano image given the panoID.
+  return pano.path;
   //return "images/PanoTest/"+tileX+"-"+tileY+".jpg";
-  return "images/2048x1024/"+panoID+".jpg"
+  //return "images/2048x1024/"+panoID+".jpg"
   //return "images/ba2_1_4096.jpg"
 }
 
 function getCustomPanorama(panoID) {
+  //request to server including:
+  //Json
+  //{
+  //  panoID:{
+  //    path: ...,
+  //    description: ...,
+  //    neighbour:{
+  //      1: {
+  //        panoID: ...,
+  //        heading: ...,
+  //        description: ...
+  //      }
+  //      2: {
+  //        ...
+  //      }
+  //    }
+  //  }
+  //}
+  //
+  // path -> getTileUrl
+  // name -> pano / panoID
+  // descrption
+  console.log(panoID)
+  var panoJson = getPanoJson(panoID);
+
   var streetViewPanoramaData = {
     links: [],
     copyright: 'Imagery (c) VCL',
+    location: {
+      pano: panoJson.id,
+      description: panoJson.description
+    },
     tiles: {
         tileSize: new google.maps.Size(2048, 1024),
         worldSize: new google.maps.Size(2048, 1024),
-        centerHeading: 140,
         getTileUrl: getCustomPanoramaTileUrl
      }
   };
 
-  switch(panoID) {
+  return streetViewPanoramaData;
+
+  /*switch(panoID) {
     case "campus01":
       streetViewPanoramaData["location"] = {
         pano: 'campus01',
@@ -122,7 +154,7 @@ function getCustomPanorama(panoID) {
         description: "BA2 05",
       };
       return streetViewPanoramaData;
-  }
+  }*/
 }
 
 
@@ -133,9 +165,22 @@ function createCustomLink() {
    */
   var links = streetView.getLinks();
   var panoID = streetView.getPano();
-
-
-  switch(panoID) {
+  //get panoJson
+  var panoJson = getPanoJson(panoID);
+  //detect neighbors
+  var neighbours = panoJson.neighbours;
+  for(key in neighbours){
+    if (neighbours.hasOwnProperty(key)){
+      var obj = neighbours[key];
+      links.push({
+        description: obj.description,
+        pano: obj.neighbour_id,
+        heading: obj.heading
+      });
+    }
+  }
+  //links.push({});
+  /*switch(panoID) {
     case "campus01":
       links.push({
         description : "",
@@ -222,7 +267,22 @@ function createCustomLink() {
         heading : 60
       });
       break;
+  }*/
+}
+
+function getPanoJson(panoID){
+  if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+    var xhr = new XMLHttpRequest();
+  }else{// code for IE6, IE5
+    var xhr = new ActiveXObject("Microsoft.XMLHTTP");
   }
+
+  xhr.open("GET", "/admin/test_new.php?id="+panoID, false);
+  xhr.send();
+  var response = xhr.responseText;
+  var json = JSON.parse(response);
+  pano = json["Panoid"];
+  return pano;
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);
