@@ -1,0 +1,27 @@
+.map_dots {
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+}
+
+.map_dots:hover {
+  cursor: pointer;
+  background-color: black;
+}
+
+#edit_map_content {
+  position: absolute;
+  top: 205px;
+}
+#edit_map_ctrl_btnGrp {
+  display: none;
+}
+
+.edit_current_img {
+  border: 5px solid #449d44;
+}
+
+#sub_map_container {
+  display: none;
+  float: right;
+}
