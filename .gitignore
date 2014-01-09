@@ -1,0 +1,8 @@
+# Files that won't be tracked with git
+admin/tools/connect.php
+admin/assets/img_360/*
+admin/log/*
+
+# Do not ignore the following marked with '!'
+!admin/assets/img_360/.gitkeep
+!admin/log/.gitkeep

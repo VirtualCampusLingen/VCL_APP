@@ -1,5 +1,0 @@
-08.01.2014, 20:30:23, 127.0.0.1, GET, /admin/edit_picture.php, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.57 Safari/537.36, http://vcl_app/admin/, 200
-08.01.2014, 20:32:52, 127.0.0.1, GET, /admin/edit_picture.php, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.57 Safari/537.36, http://vcl_app/admin/, 200
-08.01.2014, 20:32:59, 127.0.0.1, GET, /admin/edit_admin.php, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.57 Safari/537.36, http://vcl_app/admin/edit_infotext.php, 200
-08.01.2014, 20:33:00, 127.0.0.1, GET, /admin/edit_picture.php, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.57 Safari/537.36, http://vcl_app/admin/edit_admin.php, 200
-08.01.2014, 20:33:01, 127.0.0.1, GET, /admin/edit_map.php, Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.57 Safari/537.36, http://vcl_app/admin/edit_picture.php, 200

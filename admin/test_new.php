@@ -29,6 +29,7 @@
 	include_once($tools_dir . "sql.php");
   include_once($tools_dir . "log.php");
 	$dblk = connect();
+  error_reporting(0);
 
 	if( !empty($_GET['id']) ) {
 		$id = mysql_real_escape_string($_GET['id']);
@@ -48,15 +49,17 @@
   			$neighbours[$i] = array('neighbour_id'=>$row['neighbour_id'],'heading' => $row['heading'],'description'=>"");
               $i++;
   		}
-          
   	}
       echo (json_encode(array(
-              'Panoid'=> array(
-                  'path' => $path,
-                  'description' => $photo_name,
-                  'id' => $id,
-                  'neighbours' => $neighbours
+          'Panoid'=> array(
+              'path' => $path,
+              'description' => $photo_name,
+              'id' => $id,
+              'neighbours' => $neighbours,
+              'info_texts' => array(
+                'Foo' => 'Bar'
               )
+          )
       )));
   };
 
