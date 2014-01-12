@@ -1,3 +1,71 @@
+<?php
+$DOCUMENT_ROOT = dirname(__FILE__);
+$tools_dir = $DOCUMENT_ROOT . "/tools/";
+include_once($tools_dir . "connect.php");
+include_once($tools_dir . "sql.php");
+$dblk = connect();
+
+$notifications = array("success" => array(),  "error" => array(), "warning" => array());
+
+//List of all
+$infotext_sql = sql("SELECT * FROM infotext ORDER BY  `infotext`.`infoTextID` ASC");
+$i = 0;
+while($row = mysql_fetch_assoc($infotext_sql)){
+  $index = $i;
+  $infotext[$index]["text"] = $row["text"];
+  $infotext[$index]["name"] = $row["name"];
+  $infotext[$index]["date_of_update"] = $row["date_of_update"];
+  $i++;
+}
+
+//Update infotext
+if(isset($_POST['update_infotext_id'])){
+  $p_id = mysql_real_escape_string($_POST['update_infotext_id']);
+  $p_name = mysql_real_escape_string($_POST['name']);
+  $p_description = mysql_real_escape_string($_POST['text']);
+  $res = sql("UPDATE infotext SET name='".$p_name."', text='".$p_description."' WHERE infoTextID='".$p_id."'");
+  respondeToSql($res);
+}
+
+//Delete infotext
+if (isset($_POST['delete_infotext'])){
+  $del_infotext_id = mysql_real_escape_string($_POST['delete_infotext']);
+  $res = sql("DELETE FROM infotext WHERE infoTextID='".$$del_infotext_id."'");
+  respondeToSql($res);
+}
+
+
+function respondeToSql($sql_statement){
+  global $notifications;
+  if(!$sql_statement){
+    //internal server error
+    array_push($notifications["error"], "Ein Fehler ist aufgetreten");
+    http_response_code(500);
+  }else if(mysql_affected_rows() == 0){
+    //no row affected
+    array_push($notifications["warning"], "Keine Änderungen vorgenommen");
+    http_response_code(304);
+  }
+  else{  
+    //sql success
+    array_push($notifications["success"], "Erfolgreich");
+    http_response_code(200);
+  }
+}
+
+//display notifications
+foreach ($notifications as $type => $notfiy_array) {
+  foreach($notfiy_array as $msg){
+    echo "<script>window.onload = function(){setFlash('".$type."','".$msg."')};</script>";
+  }
+}
+
+?>
+
+
+
+
+
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -21,6 +89,13 @@
         <link rel="stylesheet" href="assets/css/main.css">
 
         <script src="assets/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+		
+		<script>
+		      function toggleEditRow(photo_id){
+				$("#infotext_row_edit_"+photo_id).toggle()
+				$("#infotext_row_"+photo_id).toggle()
+			  };
+		</script>
     </head>
     <body>
         <!--[if lt IE 7]>
@@ -61,7 +136,33 @@
       </div>
     </div>
     <div class="container">
-		//LISTE?!?
+		<table>
+		    <?php
+            foreach($infotext as $key => $value){
+              echo("
+                <tr id='infotext_row_".$key."'>
+                  <td id='infotext_name'><strong>".htmlspecialchars($value["name"])."</strong></td>
+                  <td id='uploaded_at'>".htmlspecialchars($value["date_of_update"])."</td>
+                  <td>
+                  <span class='glyphicon glyphicon-edit pointer' onclick='toggleEditRow(".$key.")'></span>
+                  ||
+                  <span class='glyphicon glyphicon-trash pointer' onclick='deleteinfotext(".$key.")'></span>
+                  </td>
+                </tr>
+				<tr id='infotext_row_edit_".$key."' class='edit_row_toggle'>
+                  <form name='update_infotext_row_".$key."' method='POST'>
+                    <input type='hidden' name='update_infotext_id' value='".$key."'></input>
+                    <td><span>ändern</span></td>
+                    <td><input name='infotext_name' value='".htmlspecialchars($value["name"])."'></input></td>
+                    <td><textarea name='infotext_text' >".htmlspecialchars($value["text"])."</textarea></td>
+                    <td><button type='submit' class='btn-success btn btn-xs'>aktualisieren</button></td>
+                  </form>
+                </tr>
+				"
+                );
+            }
+          ?>
+		</table>
 	  <hr>
 
       <footer>
