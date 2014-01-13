@@ -2,6 +2,7 @@
 # Logging requests
 $log_file = $_SERVER['DOCUMENT_ROOT'].'/admin/log/log.txt';
 $logdatei = fopen($log_file,"a");
+error_reporting(0);
 fputs($logdatei,
     date("d.m.Y, H:i:s",time()) .
     ", " . $_SERVER['REMOTE_ADDR'] .
