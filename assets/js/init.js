@@ -10,7 +10,7 @@ function initialize() {
   var streetViewOptions = {
     zoom: 1,
     panoProvider:  getCustomPanorama,
-    pano:  "54",
+    pano:  "56",
     pov : {
       heading : 270,
       pitch : 0,
@@ -59,6 +59,7 @@ function getCustomPanorama(panoID) {
   // descrption
   var panoJson = getPanoJson(panoID);
   var info_texts = panoJson.info_texts;
+  $("#info").empty()
   for(key in info_texts){
     if (info_texts.hasOwnProperty(key)){
       // console.log(key)
@@ -125,12 +126,14 @@ function getPanoJson(panoID){
 }
 
 function addInfoIcon(){
-  $("#info").append("<div id='info_text' style='max-width: 500px; background-color: whitesmoke; display: none; float: left; vertical-align: middle'>Lorem Ipsum Foo Bar Lorem Ipsum Foo Bar Lorem Ipsum Foo Bar Lorem Ipsum Foo Bar Lorem Ipsum Foo Bar </div>")
-  $("#info").append("<span onclick='toggleInfo()' class='glyphicon glyphicon-info-sign' style='cursor: pointer; color:lightseagreen; display: inherit; font-size: 35px; float: right; vertical-align: middle'></span>")
+  var id = Date.now()
+  $("#info").append("<div class='info_row' id='"+id+"'></div>")
+  $("#"+id).append("<div id='info_text' style='max-width: 500px; background-color: whitesmoke; display: none; float: left; vertical-align: middle'>Lorem Ipsum Foo Bar Lorem Ipsum Foo Bar Lorem Ipsum Foo Bar Lorem Ipsum Foo Bar Lorem Ipsum Foo Bar </div>")
+  $("#"+id).append("<span onclick='toggleInfo("+id+")' class='glyphicon glyphicon-info-sign' style='cursor: pointer; color:lightseagreen; display: inherit; font-size: 35px; float: right; vertical-align: middle'></span>")
 }
 
-function toggleInfo(){
-  $("#info_text").toggle("slidde")
+function toggleInfo(id){
+  $("#"+id+" #info_text").toggle("slidde")
 }
 
 google.maps.event.addDomListener(window, 'load', initialize);

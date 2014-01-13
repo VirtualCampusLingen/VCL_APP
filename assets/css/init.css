@@ -3,6 +3,8 @@
   z-index: 999999;
   top: 50px;
   right: 120px;
-  display: table-cell;
-  line-height: 40px;
+}
+
+.info_row {
+  display: table-row;
 }
