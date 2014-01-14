@@ -125,15 +125,27 @@ function getPanoJson(panoID){
   return pano;
 }
 
-function addInfoIcon(){
-  var id = Date.now()
-  $("#info").append("<div class='info_row' id='"+id+"'></div>")
-  $("#"+id).append("<div id='info_text' style='max-width: 500px; background-color: whitesmoke; display: none; float: left; vertical-align: middle'>Lorem Ipsum Foo Bar Lorem Ipsum Foo Bar Lorem Ipsum Foo Bar Lorem Ipsum Foo Bar Lorem Ipsum Foo Bar </div>")
-  $("#"+id).append("<span onclick='toggleInfo("+id+")' class='glyphicon glyphicon-info-sign' style='cursor: pointer; color:lightseagreen; display: inherit; font-size: 35px; float: right; vertical-align: middle'></span>")
+function toggleInfo(caller){
+  $(caller).siblings("#info_text").toggle("slidde")
 }
 
-function toggleInfo(id){
-  $("#"+id+" #info_text").toggle("slidde")
+function addInfoIcon(){
+  var text = "Lorem Ipsum Foo Bar Lorem <b>Ipsum</b> Foo Bar Lorem Ipsum Foo Bar Lorem Ipsum Foo Bar Lorem Ipsum Foo Bar"
+  var id = Date.now()
+  $("#info").appendPartial('partial', function(){
+    $("#temp").attr("id", id)
+    $("#"+id+" #info_text").text(text) //use html() for html tags
+  })
 }
+
+jQuery.fn.extend({
+  appendPartial: function(name, callback){
+    var element = this
+    $.get("_"+name+".html", function(data){
+      $(element).append(data)
+      if(typeof callback != 'undefined') callback();
+    })
+  }
+});
 
 google.maps.event.addDomListener(window, 'load', initialize);
