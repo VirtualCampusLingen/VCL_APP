@@ -2,11 +2,6 @@
 var initPosPanoID, streetView;
 
 function initialize() {
-  //In front of Ardenwood.
-  // var initPos = new google.maps.LatLng(37.55631,-122.051153);  
-
-  // Set StreetView provider.
-
   var streetViewOptions = {
     zoom: 1,
     panoProvider:  getCustomPanorama,
@@ -23,12 +18,29 @@ function initialize() {
   streetView = new google.maps.StreetViewPanorama(streetViewDiv, streetViewOptions);
 
   google.maps.event.addListener(streetView, "links_changed", createCustomLink);
+  google.maps.event.addListener(streetView, "pano_changed", preLoadImg);
+}
+
+function preLoadImg(){
+  var panoID = streetView.getPano();
+  var panoJson = getPanoJson(panoID);
+  var neighbours = panoJson.neighbours;
+  for(key in neighbours){
+    if (neighbours.hasOwnProperty(key)){
+      var obj = neighbours[key];
+      $.ajax({
+        url: 'admin/'+obj.path,
+        success: function(){
+          $('<img/>')[0].src = 'admin/'+obj.path
+        }
+      })
+    }
+  }
 }
 
 function getCustomPanoramaTileUrl(panoID, zoom, tileX, tileY) {
-//function getCustomPanoramaTileUrl(panoID, path) {
   // Return a pano image given the panoID.
-  return pano.path;
+  return pano.path
   //return "images/PanoTest/"+tileX+"-"+tileY+".jpg";
   //return "images/2048x1024/"+panoID+".jpg"
   //return "images/ba2_1_4096.jpg"
@@ -85,8 +97,6 @@ function getCustomPanorama(panoID) {
 
   return streetViewPanoramaData;
 }
-
-
 
 function createCustomLink() {
   /*

@@ -42,13 +42,13 @@
   		$photo_name = $row['photo_name'];
   		$path = "admin/".$row['path'];
 
-  		$sql2 = sql("SELECT `neighbour_id`,`heading`,`photo_id`  FROM `photo_neighbour` WHERE `photo_id` = '".$id."' ");	
+  		$sql2 = sql("SELECT *  FROM `photo_neighbour` INNER JOIN `photo` ON `neighbour_id`=`PhotoID` WHERE `photo_id` = '".$id."' ");
   		$neighbours = array();
-          $i = 0;
-          while ($row = mysql_fetch_assoc($sql2)) {
-  			$neighbours[$i] = array('neighbour_id'=>$row['neighbour_id'],'heading' => $row['heading'],'description'=>"");
-              $i++;
-  		}
+      $i = 0;
+      while ($row2 = mysql_fetch_assoc($sql2)) {
+        $neighbours[$i] = array('neighbour_id'=>$row2['neighbour_id'],'heading' => $row2['heading'],'description'=>"",'path'=> $row2['path']);
+        $i++;
+	    }
   	}
       echo (json_encode(array(
           'Panoid'=> array(
