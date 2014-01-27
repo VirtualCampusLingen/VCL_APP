@@ -25,3 +25,9 @@
   display: none;
   float: right;
 }
+
+#map-canvas {
+	width: 100%;
+	height: 400px;
+	margin: 0 auto;
+}
