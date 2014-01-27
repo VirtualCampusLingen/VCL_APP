@@ -2,6 +2,7 @@
 admin/tools/connect.php
 admin/assets/img_360/*
 admin/log/*
+.project
 
 # Do not ignore the following marked with '!'
 !admin/assets/img_360/.gitkeep
