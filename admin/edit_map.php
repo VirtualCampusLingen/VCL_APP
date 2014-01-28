@@ -12,6 +12,17 @@ error_reporting(null);
 
 ?>
 
+<?php
+
+if(isset($_POST['latitude']) && isset($_POST['longitude']))
+{
+	$latitude = mysql_escape_string($_POST['latitude']);
+	$longitude = mysql_escape_string($_POST['longitude']);
+	sql("UPDATE photo SET x_position = " . $latitude . ", y_position = " . $longitude . " WHERE PhotoID = 1");
+}
+
+?>
+
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -108,6 +119,7 @@ error_reporting(null);
       
       <script>
         var map;
+        var marker;
       
       	function initializeMap()
       	{
@@ -117,7 +129,27 @@ error_reporting(null);
 				zoom: 18
 			};
       		map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+      		marker = new google.maps.Marker();
+      			
+      		google.maps.event.addListener(map, 'click', function(event)
+			{
+				placeMarker(event.latLng);
+				fillForm(event.latLng);
+			}
+			);
       	}
+      	
+      	function placeMarker(location)
+		{
+			marker.setMap(map);
+			marker.setPosition(location);
+		}
+		
+		function fillForm(location)
+		{
+			$('#latitude').val(location.lat());
+			$('#longitude').val(location.lng());
+		}
       	
       	google.maps.event.addDomListener(window, 'load', function()
 			{
@@ -125,6 +157,12 @@ error_reporting(null);
 			}
 		);
       </script>
+      
+      <form method="POST">
+      	 <input type="text" name="latitude" id="latitude" placeholder="Latitude">
+		 <input type="text" name="longitude" id="longitude" placeholder="Longitude">
+		 <button type="submit" class="btn btn-success">Speichern</button>
+      </form>
       
       <footer>
           <p>&copy; VCL 2013</p>
