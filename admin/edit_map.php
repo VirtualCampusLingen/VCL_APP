@@ -18,7 +18,24 @@ if(isset($_POST['latitude']) && isset($_POST['longitude']))
 {
 	$latitude = mysql_escape_string($_POST['latitude']);
 	$longitude = mysql_escape_string($_POST['longitude']);
-	sql("UPDATE photo SET x_position = " . $latitude . ", y_position = " . $longitude . " WHERE PhotoID = 1");
+	sql("UPDATE photo SET x_position = $latitude, y_position = $longitude WHERE PhotoID = 1");
+}
+
+if(isset($_GET['photosOnMap']))
+{
+	$mapId = mysql_escape_string($_GET['photosOnMap']);
+	$photos = sql("SELECT * FROM photo WHERE map_id = $mapId");
+	
+	$photoArray = array();
+	$i = 0;
+    while ($row = mysql_fetch_assoc($photos)) 
+    {
+		$photoArray[$i] = array('photoId' => $row['PhotoID'], 'lat' => $row['x_position'], 'lng' => $row['y_position']);
+		$i++;
+	}
+	
+	echo json_encode($photoArray);
+	die();
 }
 
 ?>
@@ -131,6 +148,8 @@ if(isset($_POST['latitude']) && isset($_POST['longitude']))
       		map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
       		marker = new google.maps.Marker();
       			
+      		positionPhotos();
+      			
       		google.maps.event.addListener(map, 'click', function(event)
 			{
 				placeMarker(event.latLng);
@@ -145,6 +164,27 @@ if(isset($_POST['latitude']) && isset($_POST['longitude']))
 			marker.setPosition(location);
 		}
 		
+		function positionPhotos()
+		{
+			$.ajax({
+				url: 'http://vcl_app/admin/edit_map.php',
+				data: 'photosOnMap=1',
+				type: 'GET',
+				success: function(data)
+				{
+					var photoData = JSON.parse(data);
+					$(photoData).each(function(index, value)
+					{
+						new google.maps.Marker({
+							position: new google.maps.LatLng(value.lat, value.lng),
+							map: map,
+							photoId: value.photoId
+						});
+					});
+				}
+			});
+		}
+		
 		function fillForm(location)
 		{
 			$('#latitude').val(location.lat());
@@ -152,9 +192,9 @@ if(isset($_POST['latitude']) && isset($_POST['longitude']))
 		}
       	
       	google.maps.event.addDomListener(window, 'load', function()
-			{
-				initializeMap();
-			}
+		{
+			initializeMap();
+		}
 		);
       </script>
       
