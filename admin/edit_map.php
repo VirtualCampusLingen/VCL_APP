@@ -14,21 +14,22 @@ error_reporting(null);
 
 <?php
 
-if(isset($_POST['latitude']) && isset($_POST['longitude']))
+if(isset($_POST['lat']) && isset($_POST['lng']) && isset($_POST['photoId']))
 {
-	$latitude = mysql_escape_string($_POST['latitude']);
-	$longitude = mysql_escape_string($_POST['longitude']);
-	sql("UPDATE photo SET x_position = $latitude, y_position = $longitude WHERE PhotoID = 1");
+	$photoId = mysql_escape_string($_POST['photoId']);
+	$lat = mysql_escape_string($_POST['lat']);
+	$lng = mysql_escape_string($_POST['lng']);
+	sql("UPDATE photo SET x_position = $lat, y_position = $lng WHERE PhotoID = $photoId");
 }
 
 if(isset($_GET['photosOnMap']))
 {
 	$mapId = mysql_escape_string($_GET['photosOnMap']);
-	$photos = sql("SELECT * FROM photo WHERE map_id = $mapId");
+	$photosOnMap = sql("SELECT * FROM photo WHERE map_id = $mapId");
 	
 	$photoArray = array();
 	$i = 0;
-    while ($row = mysql_fetch_assoc($photos)) 
+    while ($row = mysql_fetch_assoc($photosOnMap)) 
     {
 		$photoArray[$i] = array('photoId' => $row['PhotoID'], 'lat' => $row['x_position'], 'lng' => $row['y_position']);
 		$i++;
@@ -151,11 +152,11 @@ if(isset($_GET['photosOnMap']))
       		positionPhotos();
       			
       		google.maps.event.addListener(map, 'click', function(event)
-			{
+      		{
 				placeMarker(event.latLng);
 				fillForm(event.latLng);
-			}
-			);
+			});
+			//google.maps.event.addListener(marker, 'click', toggleInfo);
       	}
       	
       	function placeMarker(location)
@@ -166,7 +167,8 @@ if(isset($_GET['photosOnMap']))
 		
 		function positionPhotos()
 		{
-			$.ajax({
+			$.ajax(
+			{
 				url: 'http://vcl_app/admin/edit_map.php',
 				data: 'photosOnMap=1',
 				type: 'GET',
@@ -175,7 +177,8 @@ if(isset($_GET['photosOnMap']))
 					var photoData = JSON.parse(data);
 					$(photoData).each(function(index, value)
 					{
-						new google.maps.Marker({
+						new google.maps.Marker(
+						{
 							position: new google.maps.LatLng(value.lat, value.lng),
 							map: map,
 							photoId: value.photoId
@@ -187,8 +190,8 @@ if(isset($_GET['photosOnMap']))
 		
 		function fillForm(location)
 		{
-			$('#latitude').val(location.lat());
-			$('#longitude').val(location.lng());
+			$('#lat').val(location.lat());
+			$('#lng').val(location.lng());
 		}
       	
       	google.maps.event.addDomListener(window, 'load', function()
@@ -196,11 +199,30 @@ if(isset($_GET['photosOnMap']))
 			initializeMap();
 		}
 		);
+		
+		function toggleInfo()
+		{
+			//Not yet implemented
+		}
+		
       </script>
       
       <form method="POST">
-      	 <input type="text" name="latitude" id="latitude" placeholder="Latitude">
-		 <input type="text" name="longitude" id="longitude" placeholder="Longitude">
+      	  <?php
+      	  	$allPhotos = sql("SELECT * FROM photo");
+            echo("<select name='photoId'>");
+            $i = 0;
+            while($row = mysql_fetch_assoc($allPhotos)){
+              $photo_hsh[$i]["PhotoID"] = $row["PhotoID"];
+              $photo_hsh[$i]["photo_name"] = $row["photo_name"];
+              
+              echo("<option value='" .$photo_hsh[$i]["PhotoID"]. "'>" .$photo_hsh[$i]["photo_name"]. "</option>");
+              $i++;
+            }
+            echo("</select>");
+          ?>
+      	 <input type="hidden" name="lat" id="lat">
+		 <input type="hidden" name="lng" id="lng">
 		 <button type="submit" class="btn btn-success">Speichern</button>
       </form>
       
