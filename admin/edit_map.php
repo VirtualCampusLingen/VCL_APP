@@ -31,7 +31,10 @@ if(isset($_GET['photosOnMap']))
 	$i = 0;
     while ($row = mysql_fetch_assoc($photosOnMap)) 
     {
-		$photoArray[$i] = array('photoId' => $row['PhotoID'], 'lat' => $row['x_position'], 'lng' => $row['y_position']);
+		$photoArray[$i] = array('photoId' => $row['PhotoID'], 
+								'lat' => $row['x_position'], 
+								'lng' => $row['y_position'], 
+								'desc' => $row['description']);
 		$i++;
 	}
 	
@@ -156,7 +159,6 @@ if(isset($_GET['photosOnMap']))
 				placeMarker(event.latLng);
 				fillForm(event.latLng);
 			});
-			//google.maps.event.addListener(marker, 'click', toggleInfo);
       	}
       	
       	function placeMarker(location)
@@ -177,11 +179,25 @@ if(isset($_GET['photosOnMap']))
 					var photoData = JSON.parse(data);
 					$(photoData).each(function(index, value)
 					{
-						new google.maps.Marker(
+						var content = "<h4>" + value.desc + "</h4>";
+						
+						var infoWindow = new google.maps.InfoWindow(
+						{
+							content: content
+						});
+						var marker = new google.maps.Marker(
 						{
 							position: new google.maps.LatLng(value.lat, value.lng),
 							map: map,
+							icon: 'images/marker_green.png',
+							infoWindow: infoWindow,
+							infoWindowOpen: false,
 							photoId: value.photoId
+						});
+						google.maps.event.addListener(marker, 'click', function()
+						{
+							marker.infoWindowOpen ? infoWindow.close() : infoWindow.open(map, marker);
+							marker.infoWindowOpen = !marker.infoWindowOpen;
 						});
 					});
 				}
