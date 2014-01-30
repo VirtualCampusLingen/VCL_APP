@@ -219,9 +219,10 @@ if(isset($_GET['photosOnMap']))
 		function enterEditMode(photoId)
 		{
 			// TODO: Panel einblenden
+			// TODO: Refactoring der AJAX-Parameter
 			editMode = true;
 			editMarker = map.markerHash[photoId];
-			editMarker.setIcon('images/marker_orange.png');
+			editMarker.setIcon('images/marker_blue.png');
 			editMarker.infoWindow.close();
 			$.ajax(
 			{
@@ -233,7 +234,7 @@ if(isset($_GET['photosOnMap']))
 					photoData = JSON.parse(data)['Panoid'];
 					photoData.neighbours.forEach(function(entry)
 					{
-						map.markerHash[entry.neighbour_id].setIcon('images/marker_red.png');
+						map.markerHash[entry.neighbour_id].setIcon('images/marker_orange.png');
 					});
 				}
 			});
