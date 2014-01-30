@@ -141,13 +141,15 @@ if(isset($_GET['photosOnMap']))
       <script>
         var map;
         var marker;
+        var editMode = false;
       
       	function initializeMap()
       	{
 			var mapOptions =
 			{
 				center: new google.maps.LatLng(52.51947, 7.32260),
-				zoom: 18
+				zoom: 18,
+				markerHash: {}
 			};
       		map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
       		marker = new google.maps.Marker();
@@ -171,7 +173,6 @@ if(isset($_GET['photosOnMap']))
 		{
 			$.ajax(
 			{
-				url: 'http://vcl_app/admin/edit_map.php',
 				data: 'photosOnMap=1',
 				type: 'GET',
 				success: function(data)
@@ -179,7 +180,10 @@ if(isset($_GET['photosOnMap']))
 					var photoData = JSON.parse(data);
 					$(photoData).each(function(index, value)
 					{
-						var content = "<h4>" + value.desc + "</h4>";
+						var content = "<p>" + value.desc + "</p>";
+						content += "<button type='button' class='btn btn-info btn-xs' onclick='enterEditMode("
+								+ value.photoId
+								+ ")'>Bearbeiten</button>";
 						
 						var infoWindow = new google.maps.InfoWindow(
 						{
@@ -194,8 +198,10 @@ if(isset($_GET['photosOnMap']))
 							infoWindowOpen: false,
 							photoId: value.photoId
 						});
+						map.markerHash[value.photoId] = marker;
 						google.maps.event.addListener(marker, 'click', function()
 						{
+							// TODO: Edit-Mode prüfen
 							marker.infoWindowOpen ? infoWindow.close() : infoWindow.open(map, marker);
 							marker.infoWindowOpen = !marker.infoWindowOpen;
 						});
@@ -209,17 +215,35 @@ if(isset($_GET['photosOnMap']))
 			$('#lat').val(location.lat());
 			$('#lng').val(location.lng());
 		}
+		
+		function enterEditMode(photoId)
+		{
+			// TODO: Panel einblenden
+			editMode = true;
+			editMarker = map.markerHash[photoId];
+			editMarker.setIcon('images/marker_orange.png');
+			editMarker.infoWindow.close();
+			$.ajax(
+			{
+				url: 'test_new.php',
+				type: 'GET',
+				data: 'id=1',
+				success: function(data)
+				{
+					photoData = JSON.parse(data)['Panoid'];
+					photoData.neighbours.forEach(function(entry)
+					{
+						map.markerHash[entry.neighbour_id].setIcon('images/marker_red.png');
+					});
+				}
+			});
+		}
       	
       	google.maps.event.addDomListener(window, 'load', function()
 		{
 			initializeMap();
 		}
 		);
-		
-		function toggleInfo()
-		{
-			//Not yet implemented
-		}
 		
       </script>
       
