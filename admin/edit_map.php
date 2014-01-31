@@ -134,6 +134,10 @@ if(isset($_GET['photosOnMap']))
             <li><a href="#KE1OG" data-map-id="3" data-href="edit_map.php?map_id=3" data-toggle="tab">KE 1OG</a></li>
           </ul>
         </li>
+        <div id="editPanel" class="pull-right" style="display: none">
+        	<button type="button" class="btn btn-success">Speichern</button>
+        	<button type="button" class="btn btn-danger">Abbrechen</button>
+        </div>
       </ul>
       
       <div id="map-canvas"></div>
@@ -141,7 +145,7 @@ if(isset($_GET['photosOnMap']))
       <script>
         var map;
         var marker;
-        var editMode = false;
+        var editMarker = null;
       
       	function initializeMap()
       	{
@@ -163,10 +167,41 @@ if(isset($_GET['photosOnMap']))
 			});
       	}
       	
+      	function inEditMode()
+      	{
+      		return editMarker != null;
+      	}
+      	
       	function placeMarker(location)
 		{
 			marker.setMap(map);
 			marker.setPosition(location);
+		}
+		
+		function togglePhotoNeighbour(marker)
+		{
+			// TODO: Bessere Lösung?
+			if(marker == editMarker)
+			{
+				return;
+			}
+			var markerIndex = $.inArray(marker.photoId, editMarker.neighbours);
+			if(markerIndex == -1)
+			{
+				editMarker.neighbours.push(marker.photoId);
+				marker.setIcon('images/marker_orange.png');
+			}
+			else
+			{
+				editMarker.neighbours.splice(markerIndex, 1);
+				marker.setIcon('images/marker_green.png');
+			}
+		}
+		
+		function showInfoWindow(marker)
+		{
+			marker.infoWindowOpen ? marker.infoWindow.close() : marker.infoWindow.open(map, marker);
+			marker.infoWindowOpen = !marker.infoWindowOpen;
 		}
 		
 		function positionPhotos()
@@ -196,14 +231,13 @@ if(isset($_GET['photosOnMap']))
 							icon: 'images/marker_green.png',
 							infoWindow: infoWindow,
 							infoWindowOpen: false,
-							photoId: value.photoId
+							photoId: value.photoId,
+							neighbours: []
 						});
 						map.markerHash[value.photoId] = marker;
 						google.maps.event.addListener(marker, 'click', function()
 						{
-							// TODO: Edit-Mode prüfen
-							marker.infoWindowOpen ? infoWindow.close() : infoWindow.open(map, marker);
-							marker.infoWindowOpen = !marker.infoWindowOpen;
+							inEditMode() ? togglePhotoNeighbour(marker) : showInfoWindow(marker);
 						});
 					});
 				}
@@ -218,9 +252,8 @@ if(isset($_GET['photosOnMap']))
 		
 		function enterEditMode(photoId)
 		{
-			// TODO: Panel einblenden
 			// TODO: Refactoring der AJAX-Parameter
-			editMode = true;
+			$('#editPanel').show();
 			editMarker = map.markerHash[photoId];
 			editMarker.setIcon('images/marker_blue.png');
 			editMarker.infoWindow.close();
@@ -234,6 +267,7 @@ if(isset($_GET['photosOnMap']))
 					photoData = JSON.parse(data)['Panoid'];
 					photoData.neighbours.forEach(function(entry)
 					{
+						editMarker.neighbours.push(entry.neighbour_id);
 						map.markerHash[entry.neighbour_id].setIcon('images/marker_orange.png');
 					});
 				}
