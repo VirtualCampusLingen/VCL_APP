@@ -16,6 +16,7 @@ error_reporting(null);
 
 if(isset($_POST['lat']) && isset($_POST['lng']) && isset($_POST['photoId']))
 {
+	// TODO: mapId festlegen
 	$photoId = mysql_escape_string($_POST['photoId']);
 	$lat = mysql_escape_string($_POST['lat']);
 	$lng = mysql_escape_string($_POST['lng']);
@@ -41,7 +42,6 @@ if(isset($_GET['photosOnMap']))
 	echo json_encode($photoArray);
 	die();
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -135,8 +135,8 @@ if(isset($_GET['photosOnMap']))
           </ul>
         </li>
         <div id="editPanel" class="pull-right" style="display: none">
-        	<button type="button" class="btn btn-success">Speichern</button>
-        	<button type="button" class="btn btn-danger">Abbrechen</button>
+        	<button type="button" class="btn btn-success" onclick="saveNeighbours()">Speichern</button>
+        	<button type="button" class="btn btn-danger" onclick="exitEditMode()">Abbrechen</button>
         </div>
       </ul>
       
@@ -162,8 +162,11 @@ if(isset($_GET['photosOnMap']))
       			
       		google.maps.event.addListener(map, 'click', function(event)
       		{
-				placeMarker(event.latLng);
-				fillForm(event.latLng);
+      			if(!inEditMode())
+      			{
+	      			placeMarker(event.latLng);
+					fillForm(event.latLng);	
+      			}
 			});
       	}
       	
@@ -178,13 +181,10 @@ if(isset($_GET['photosOnMap']))
 			marker.setPosition(location);
 		}
 		
-		function togglePhotoNeighbour(marker)
+		function toggleNeighbour(marker)
 		{
-			// TODO: Bessere Lösung?
-			if(marker == editMarker)
-			{
-				return;
-			}
+			if(marker == editMarker) return;
+			
 			var markerIndex = $.inArray(marker.photoId, editMarker.neighbours);
 			if(markerIndex == -1)
 			{
@@ -198,6 +198,37 @@ if(isset($_GET['photosOnMap']))
 			}
 		}
 		
+		function saveNeighbours()
+		{
+			if(!inEditMode()) return;
+						
+			var json = {'saveNeighboursFor': {'photoId': editMarker.photoId, 'neighbours': editMarker.neighbours}}
+			console.log(json);
+			$.ajax(
+			{
+				url: 'test_new.php',
+				data: json,
+				type: 'POST',
+				success: function(data)
+				{
+					// TODO:
+					//console.log(test);
+				}
+			});
+			// TODO: editMode schließen
+			exitEditMode();
+		}
+		
+		function exitEditMode()
+		{
+			editMarker = null;
+			for(var key in map.markerHash)
+			{
+				map.markerHash[key].setIcon('images/marker_green.png');
+			}
+			$('#editPanel').hide();
+		}
+		
 		function showInfoWindow(marker)
 		{
 			marker.infoWindowOpen ? marker.infoWindow.close() : marker.infoWindow.open(map, marker);
@@ -208,6 +239,7 @@ if(isset($_GET['photosOnMap']))
 		{
 			$.ajax(
 			{
+				// TODO: Refactoring
 				data: 'photosOnMap=1',
 				type: 'GET',
 				success: function(data)
@@ -237,7 +269,7 @@ if(isset($_GET['photosOnMap']))
 						map.markerHash[value.photoId] = marker;
 						google.maps.event.addListener(marker, 'click', function()
 						{
-							inEditMode() ? togglePhotoNeighbour(marker) : showInfoWindow(marker);
+							inEditMode() ? toggleNeighbour(marker) : showInfoWindow(marker);
 						});
 					});
 				}
@@ -256,20 +288,26 @@ if(isset($_GET['photosOnMap']))
 			$('#editPanel').show();
 			editMarker = map.markerHash[photoId];
 			editMarker.setIcon('images/marker_blue.png');
-			editMarker.infoWindow.close();
+			for(key in map.markerHash)
+			{
+				map.markerHash[key].infoWindow.close();
+			}
 			$.ajax(
 			{
 				url: 'test_new.php',
 				type: 'GET',
-				data: 'id=1',
+				data: 'id=' + editMarker.photoId,
 				success: function(data)
 				{
 					photoData = JSON.parse(data)['Panoid'];
-					photoData.neighbours.forEach(function(entry)
+					if(photoData.neighbours)
 					{
-						editMarker.neighbours.push(entry.neighbour_id);
-						map.markerHash[entry.neighbour_id].setIcon('images/marker_orange.png');
-					});
+						photoData.neighbours.forEach(function(entry)
+						{
+							editMarker.neighbours.push(entry.neighbour_id);
+							map.markerHash[entry.neighbour_id].setIcon('images/marker_orange.png');
+						});
+					}
 				}
 			});
 		}

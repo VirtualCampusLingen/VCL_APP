@@ -63,9 +63,9 @@
       )));
   };
 
-  if( !empty($_GET['photo_id']) ){
-    $photo_id = mysql_real_escape_string($_GET['photo_id']);
-    $neighbours_array = $_GET['neighbours'];
+  if( !empty($_POST['saveNeighboursFor']) ){
+    $photo_id = mysql_real_escape_string($_POST['saveNeighboursFor']['photoId']);
+    $neighbours_array = $_POST['saveNeighboursFor']['neighbours'];
     //Delte all relations for specific photo
     sql("DELETE FROM photo_neighbour WHERE photo_id='".$photo_id."'");
 

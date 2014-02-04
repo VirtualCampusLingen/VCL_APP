@@ -5,7 +5,7 @@ function initialize() {
   var streetViewOptions = {
     zoom: 1,
     panoProvider:  getCustomPanorama,
-    pano:  "56",
+    pano:  "50",
     pov : {
       heading : 270,
       pitch : 0,
