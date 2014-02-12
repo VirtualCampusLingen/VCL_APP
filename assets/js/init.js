@@ -5,7 +5,7 @@ function initialize() {
   var streetViewOptions = {
     zoom: 1,
     panoProvider:  getCustomPanorama,
-    pano:  "56",
+    pano:  "62",
     pov : {
       heading : 270,
       pitch : 0,
@@ -40,35 +40,10 @@ function preLoadImg(){
 
 function getCustomPanoramaTileUrl(panoID, zoom, tileX, tileY) {
   // Return a pano image given the panoID.
-  return pano.path
-  //return "images/PanoTest/"+tileX+"-"+tileY+".jpg";
-  //return "images/2048x1024/"+panoID+".jpg"
-  //return "images/ba2_1_4096.jpg"
+  return pano.path;
 }
 
 function getCustomPanorama(panoID) {
-  //request to server including:
-  //Json
-  //{
-  //  panoID:{
-  //    path: ...,
-  //    description: ...,
-  //    neighbour:{
-  //      1: {
-  //        panoID: ...,
-  //        heading: ...,
-  //        description: ...
-  //      }
-  //      2: {
-  //        ...
-  //      }
-  //    }
-  //  }
-  //}
-  //
-  // path -> getTileUrl
-  // name -> pano / panoID
-  // descrption
   var panoJson = getPanoJson(panoID);
   var info_texts = panoJson.info_texts;
   $("#info").empty()
@@ -77,7 +52,7 @@ function getCustomPanorama(panoID) {
       // console.log(key)
       // console.log(info_texts)
       // console.log(info_texts[key])
-      addInfoIcon()
+      addInfoIcon();
     }
   }
 
@@ -135,16 +110,13 @@ function getPanoJson(panoID){
   return pano;
 }
 
-function toggleInfo(caller){
-  $(caller).siblings("#info_text").toggle("slidde")
-}
-
 function addInfoIcon(){
   var text = "Lorem Ipsum Foo Bar Lorem <b>Ipsum</b> Foo Bar Lorem Ipsum Foo Bar Lorem Ipsum Foo Bar Lorem Ipsum Foo Bar"
   var id = Date.now()
-  $("#info").appendPartial('partial', function(){
-    $("#temp").attr("id", id)
-    $("#"+id+" #info_text").text(text) //use html() for html tags
+  $("#info").appendPartial('info_modal', function(){
+    $("#temp").attr("id", id);
+    $("button[data-target='#temp']").attr("data-target", "#"+id);
+    $("#"+id+" .modal-body").html(text);
   })
 }
 

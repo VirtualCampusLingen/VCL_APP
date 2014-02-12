@@ -1,10 +1,14 @@
 #info {
   position: absolute;
   z-index: 999999;
-  top: 50px;
-  right: 120px;
+  top: 25px;
+  right: 25px;
 }
 
 .info_row {
   display: table-row;
+}
+
+.modal_button {
+  margin-bottom: 5px;
 }
