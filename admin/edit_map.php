@@ -140,7 +140,16 @@ if(isset($_GET['photosOnMap']))
         </div>
       </ul>
       
+      <div id="level-selector" class="btn-group btn-group-vertical">
+      	<button type="button" class="btn btn-default">3</button>
+      	<button type="button" class="btn btn-default">2</button>
+      	<button type="button" class="btn btn-default">1</button>
+      	<button type="button" class="btn btn-default">0</button>
+      </div>
+      
       <div id="map-canvas"></div>
+      
+      <div class="clear"></div>
       
       <script>
         var map;

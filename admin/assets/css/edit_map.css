@@ -26,8 +26,16 @@
   float: right;
 }
 
+#level-selector {
+	margin: 10px;
+}
+
 #map-canvas {
-	width: 100%;
+	width: 95%;
 	height: 400px;
-	margin: 0 auto;
+	float: right;
+}
+
+.clear {
+	clear: both;
 }
