@@ -27,7 +27,7 @@ if(isset($_GET['photosOnMap']))
 {
 	$mapId = mysql_escape_string($_GET['photosOnMap']);
 	$photosOnMap = sql("SELECT * FROM photo WHERE map_id = $mapId");
-	
+
 	$photoArray = array();
 	$i = 0;
     while ($row = mysql_fetch_assoc($photosOnMap)) 
@@ -38,7 +38,7 @@ if(isset($_GET['photosOnMap']))
 								'desc' => $row['description']);
 		$i++;
 	}
-	
+
 	echo json_encode($photoArray);
 	die();
 }
@@ -70,6 +70,8 @@ if(isset($_GET['photosOnMap']))
 
         <script src="assets/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=geometry&sensor=false">
+</script>
     </head>
     <body>
         <!--[if lt IE 7]>
@@ -123,7 +125,6 @@ if(isset($_GET['photosOnMap']))
       <script src="assets/js/main.js"></script>
       <script src="assets/js/vendor/bootstrap.min.js"></script>
       <script src="assets/js/bootstrap-select.min.js"></script>
-      
 
       <ul id="map_tabs" class="nav nav-tabs">
         <li><a href="#Halle1_2" data-map-id="1" data-href="edit_map.php?map_id=1" data-toggle="tab">Halle 1/2</a></li>
@@ -156,7 +157,7 @@ if(isset($_GET['photosOnMap']))
         var map;
         var marker;
         var editMarker = null;
-      
+
       	function initializeMap()
       	{
 			var mapOptions =
@@ -167,9 +168,9 @@ if(isset($_GET['photosOnMap']))
 			};
       		map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
       		marker = new google.maps.Marker();
-      			
+
       		positionPhotos();
-      			
+
       		google.maps.event.addListener(map, 'click', function(event)
       		{
       			if(!inEditMode())
@@ -179,22 +180,22 @@ if(isset($_GET['photosOnMap']))
       			}
 			});
       	}
-      	
+
       	function inEditMode()
       	{
       		return editMarker != null;
       	}
-      	
+
       	function placeMarker(location)
 		{
 			marker.setMap(map);
 			marker.setPosition(location);
 		}
-		
+
 		function toggleNeighbour(marker)
 		{
 			if(marker == editMarker) return;
-			
+
 			var markerIndex = $.inArray(marker.photoId, editMarker.neighbours);
 			if(markerIndex == -1)
 			{
@@ -207,16 +208,27 @@ if(isset($_GET['photosOnMap']))
 				marker.setIcon('images/marker_green.png');
 			}
 		}
-		
+
+    function computeHeading(latLng1, latLng2)
+    {
+      // geometry Api computed Heading clockwise from -180 to 180 degrees
+      // streetView Api works with clockwise 0 to 360 degrees. Therefore +180
+      return google.maps.geometry.spherical.computeHeading(latLng1, latLng2) + 180;
+    }
+
 		function saveNeighbours()
 		{
 			if(!inEditMode()) return;
-						
-			var json = {'saveNeighboursFor': {'photoId': editMarker.photoId, 'neighbours': editMarker.neighbours}}
-			console.log(json);
+      var neighbours = {};
+      editMarker.neighbours.forEach(function(neighbourId){
+        var ownLatLng = map.markerHash[editMarker.photoId].getPosition();
+        var neighbourLatLng = map.markerHash[neighbourId].getPosition();
+        neighbours[neighbourId] = computeHeading(neighbourLatLng, ownLatLng);
+      });
+			var json = {'saveNeighbour': true, 'saveNeighboursFor': {'photoId': editMarker.photoId, 'neighbours': neighbours}};
 			$.ajax(
 			{
-				url: 'test_new.php',
+				url: 'apis/edit_map_api.php',
 				data: json,
 				type: 'POST',
 				success: function(data)
@@ -225,10 +237,9 @@ if(isset($_GET['photosOnMap']))
 					//console.log(test);
 				}
 			});
-			// TODO: editMode schließen
 			exitEditMode();
 		}
-		
+
 		function exitEditMode()
 		{
 			editMarker = null;
@@ -238,13 +249,42 @@ if(isset($_GET['photosOnMap']))
 			}
 			$('#editPanel').hide();
 		}
-		
+
 		function showInfoWindow(marker)
 		{
 			marker.infoWindowOpen ? marker.infoWindow.close() : marker.infoWindow.open(map, marker);
 			marker.infoWindowOpen = !marker.infoWindowOpen;
 		}
-		
+
+    function markerDragEnd(marker)
+    {
+      //Recalculate Heading for Marker -> Neighbours && Neighbour -> Marker
+      //get all neighbours for Marker
+      getAllNeighboursFor(marker.photoId, function(data)
+      {
+        photoData = JSON.parse(data)['Panoid'];
+        if(photoData.neighbours)
+        {
+          //iterate through neighbours
+          photoData.neighbours.forEach(function(entry)
+          {
+           //compute Heading
+           var ownLatLng = marker.getPosition();
+           var neighbourLatLng = map.markerHash[entry.neighbour_id].getPosition();
+           var computedHeading = computeHeading(neighbourLatLng, ownLatLng);
+           var json = {'updateHeading': true, 'photoId': marker.photoId, 'neighbourId': entry.neighbour_id, 'heading': computedHeading}
+           //send to Api
+           $.ajax({
+            url: 'apis/edit_map_api.php',
+            type: 'POST',
+            data: json
+           });
+          });
+        }
+      })
+      //
+    }
+
 		function positionPhotos()
 		{
 			$.ajax(
@@ -261,7 +301,7 @@ if(isset($_GET['photosOnMap']))
 						content += "<button type='button' class='btn btn-info btn-xs' onclick='enterEditMode("
 								+ value.photoId
 								+ ")'>Bearbeiten</button>";
-						
+
 						var infoWindow = new google.maps.InfoWindow(
 						{
 							content: content
@@ -273,11 +313,13 @@ if(isset($_GET['photosOnMap']))
 							icon: 'images/marker_green.png',
 							infoWindow: infoWindow,
 							infoWindowOpen: false,
+              draggable: true,
 							photoId: value.photoId,
 							neighbours: []
 						});
 						map.markerHash[value.photoId] = marker;
-						google.maps.event.addListener(marker, 'click', function()
+						google.maps.event.addListener(marker, 'dragend', function(){markerDragEnd(marker)})
+            google.maps.event.addListener(marker, 'click', function()
 						{
 							inEditMode() ? toggleNeighbour(marker) : showInfoWindow(marker);
 						});
@@ -285,13 +327,17 @@ if(isset($_GET['photosOnMap']))
 				}
 			});
 		}
-		
+
 		function fillForm(location)
 		{
 			$('#lat').val(location.lat());
 			$('#lng').val(location.lng());
 		}
-		
+
+    function pushToArrayUnlessExist(array, value){
+      if($.inArray(value, array) == -1) array.push(value);
+    }
+
 		function enterEditMode(photoId)
 		{
 			// TODO: Refactoring der AJAX-Parameter
@@ -302,34 +348,38 @@ if(isset($_GET['photosOnMap']))
 			{
 				map.markerHash[key].infoWindow.close();
 			}
-			$.ajax(
-			{
-				url: 'test_new.php',
-				type: 'GET',
-				data: 'id=' + editMarker.photoId,
-				success: function(data)
-				{
-					photoData = JSON.parse(data)['Panoid'];
-					if(photoData.neighbours)
-					{
-						photoData.neighbours.forEach(function(entry)
-						{
-							editMarker.neighbours.push(entry.neighbour_id);
-							map.markerHash[entry.neighbour_id].setIcon('images/marker_orange.png');
-						});
-					}
-				}
-			});
+      getAllNeighboursFor(editMarker.photoId, function(data)
+      {
+         photoData = JSON.parse(data)['Panoid'];
+         if(photoData.neighbours)
+         {
+           photoData.neighbours.forEach(function(entry)
+           {
+             pushToArrayUnlessExist(editMarker.neighbours, entry.neighbour_id);
+             map.markerHash[entry.neighbour_id].setIcon('images/marker_orange.png');
+           });
+         }
+       });
 		}
-      	
+
+    function getAllNeighboursFor(photoId, successCallback){
+      $.ajax(
+      {
+        url: 'test_new.php',
+        type: 'GET',
+        data: 'id=' + photoId,
+        success: function(data){ successCallback(data) }
+      });
+    }
+
       	google.maps.event.addDomListener(window, 'load', function()
 		{
 			initializeMap();
 		}
 		);
-		
+
       </script>
-      
+
       <form method="POST">
       	  <?php
       	  	$allPhotos = sql("SELECT * FROM photo");
@@ -338,7 +388,7 @@ if(isset($_GET['photosOnMap']))
             while($row = mysql_fetch_assoc($allPhotos)){
               $photo_hsh[$i]["PhotoID"] = $row["PhotoID"];
               $photo_hsh[$i]["photo_name"] = $row["photo_name"];
-              
+
               echo("<option value='" .$photo_hsh[$i]["PhotoID"]. "'>" .$photo_hsh[$i]["photo_name"]. "</option>");
               $i++;
             }
