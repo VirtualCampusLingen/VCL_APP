@@ -199,6 +199,13 @@ if(isset($_GET['photosOnMap']))
 			}
 		}
 
+    function computeHeading(latLng1, latLng2)
+    {
+      // geometry Api computed Heading clockwise from -180 to 180 degrees
+      // streetView Api works with clockwise 0 to 360 degrees. Therefore +180
+      return google.maps.geometry.spherical.computeHeading(latLng1, latLng2) + 180;
+    }
+
 		function saveNeighbours()
 		{
 			if(!inEditMode()) return;
@@ -206,8 +213,7 @@ if(isset($_GET['photosOnMap']))
       editMarker.neighbours.forEach(function(neighbourId){
         var ownLatLng = map.markerHash[editMarker.photoId].getPosition();
         var neighbourLatLng = map.markerHash[neighbourId].getPosition();
-        var computedHeading = google.maps.geometry.spherical.computeHeading(ownLatLng, neighbourLatLng) + 180;
-        neighbours[neighbourId] = computedHeading;
+        neighbours[neighbourId] = computeHeading(neighbourLatLng, ownLatLng);
       });
 			var json = {'saveNeighbour': true, 'saveNeighboursFor': {'photoId': editMarker.photoId, 'neighbours': neighbours}};
 			$.ajax(
@@ -233,13 +239,42 @@ if(isset($_GET['photosOnMap']))
 			}
 			$('#editPanel').hide();
 		}
-		
+
 		function showInfoWindow(marker)
 		{
 			marker.infoWindowOpen ? marker.infoWindow.close() : marker.infoWindow.open(map, marker);
 			marker.infoWindowOpen = !marker.infoWindowOpen;
 		}
-		
+
+    function markerDragEnd(marker)
+    {
+      //Recalculate Heading for Marker -> Neighbours && Neighbour -> Marker
+      //get all neighbours for Marker
+      getAllNeighboursFor(marker.photoId, function(data)
+      {
+        photoData = JSON.parse(data)['Panoid'];
+        if(photoData.neighbours)
+        {
+          //iterate through neighbours
+          photoData.neighbours.forEach(function(entry)
+          {
+           //compute Heading
+           var ownLatLng = marker.getPosition();
+           var neighbourLatLng = map.markerHash[entry.neighbour_id].getPosition();
+           var computedHeading = computeHeading(neighbourLatLng, ownLatLng);
+           var json = {'updateHeading': true, 'photoId': marker.photoId, 'neighbourId': entry.neighbour_id, 'heading': computedHeading}
+           //send to Api
+           $.ajax({
+            url: 'apis/edit_map_api.php',
+            type: 'POST',
+            data: json
+           });
+          });
+        }
+      })
+      //
+    }
+
 		function positionPhotos()
 		{
 			$.ajax(
@@ -256,7 +291,7 @@ if(isset($_GET['photosOnMap']))
 						content += "<button type='button' class='btn btn-info btn-xs' onclick='enterEditMode("
 								+ value.photoId
 								+ ")'>Bearbeiten</button>";
-						
+
 						var infoWindow = new google.maps.InfoWindow(
 						{
 							content: content
@@ -268,11 +303,13 @@ if(isset($_GET['photosOnMap']))
 							icon: 'images/marker_green.png',
 							infoWindow: infoWindow,
 							infoWindowOpen: false,
+              draggable: true,
 							photoId: value.photoId,
 							neighbours: []
 						});
 						map.markerHash[value.photoId] = marker;
-						google.maps.event.addListener(marker, 'click', function()
+						google.maps.event.addListener(marker, 'dragend', function(){markerDragEnd(marker)})
+            google.maps.event.addListener(marker, 'click', function()
 						{
 							inEditMode() ? toggleNeighbour(marker) : showInfoWindow(marker);
 						});
@@ -280,13 +317,13 @@ if(isset($_GET['photosOnMap']))
 				}
 			});
 		}
-		
+
 		function fillForm(location)
 		{
 			$('#lat').val(location.lat());
 			$('#lng').val(location.lng());
 		}
-		
+
     function pushToArrayUnlessExist(array, value){
       if($.inArray(value, array) == -1) array.push(value);
     }
@@ -301,34 +338,38 @@ if(isset($_GET['photosOnMap']))
 			{
 				map.markerHash[key].infoWindow.close();
 			}
-			$.ajax(
-			{
-				url: 'test_new.php',
-				type: 'GET',
-				data: 'id=' + editMarker.photoId,
-				success: function(data)
-				{
-					photoData = JSON.parse(data)['Panoid'];
-					if(photoData.neighbours)
-					{
-						photoData.neighbours.forEach(function(entry)
-						{
-							pushToArrayUnlessExist(editMarker.neighbours, entry.neighbour_id);
-							map.markerHash[entry.neighbour_id].setIcon('images/marker_orange.png');
-						});
-					}
-				}
-			});
+      getAllNeighboursFor(editMarker.photoId, function(data)
+      {
+         photoData = JSON.parse(data)['Panoid'];
+         if(photoData.neighbours)
+         {
+           photoData.neighbours.forEach(function(entry)
+           {
+             pushToArrayUnlessExist(editMarker.neighbours, entry.neighbour_id);
+             map.markerHash[entry.neighbour_id].setIcon('images/marker_orange.png');
+           });
+         }
+       });
 		}
-      	
+
+    function getAllNeighboursFor(photoId, successCallback){
+      $.ajax(
+      {
+        url: 'test_new.php',
+        type: 'GET',
+        data: 'id=' + photoId,
+        success: function(data){ successCallback(data) }
+      });
+    }
+
       	google.maps.event.addDomListener(window, 'load', function()
 		{
 			initializeMap();
 		}
 		);
-		
+
       </script>
-      
+
       <form method="POST">
       	  <?php
       	  	$allPhotos = sql("SELECT * FROM photo");
@@ -337,7 +378,7 @@ if(isset($_GET['photosOnMap']))
             while($row = mysql_fetch_assoc($allPhotos)){
               $photo_hsh[$i]["PhotoID"] = $row["PhotoID"];
               $photo_hsh[$i]["photo_name"] = $row["photo_name"];
-              
+
               echo("<option value='" .$photo_hsh[$i]["PhotoID"]. "'>" .$photo_hsh[$i]["photo_name"]. "</option>");
               $i++;
             }
