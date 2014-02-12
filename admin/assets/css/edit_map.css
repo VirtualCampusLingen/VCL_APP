@@ -30,8 +30,12 @@
 	margin: 10px;
 }
 
+#elevator {
+	margin: 20px 0px;
+}
+
 #map-canvas {
-	width: 95%;
+	width: 94%;
 	height: 400px;
 	float: right;
 }

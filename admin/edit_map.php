@@ -141,6 +141,7 @@ if(isset($_GET['photosOnMap']))
       </ul>
       
       <div id="level-selector" class="btn-group btn-group-vertical">
+      	<img id="elevator" src="images/elevator.png" />
       	<button type="button" class="btn btn-default">3</button>
       	<button type="button" class="btn btn-default">2</button>
       	<button type="button" class="btn btn-default">1</button>
