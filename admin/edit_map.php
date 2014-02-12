@@ -197,13 +197,13 @@ if(isset($_GET['photosOnMap']))
 				marker.setIcon('images/marker_green.png');
 			}
 		}
-		
+
 		function saveNeighbours()
 		{
 			if(!inEditMode()) return;
-						
+
 			var json = {'saveNeighboursFor': {'photoId': editMarker.photoId, 'neighbours': editMarker.neighbours}}
-			console.log(json);
+
 			$.ajax(
 			{
 				url: 'test_new.php',
@@ -218,7 +218,7 @@ if(isset($_GET['photosOnMap']))
 			// TODO: editMode schließen
 			exitEditMode();
 		}
-		
+
 		function exitEditMode()
 		{
 			editMarker = null;
@@ -282,6 +282,10 @@ if(isset($_GET['photosOnMap']))
 			$('#lng').val(location.lng());
 		}
 		
+    function pushToArrayUnlessExist(array, value){
+      if($.inArray(value, array) == -1) array.push(value);
+    }
+
 		function enterEditMode(photoId)
 		{
 			// TODO: Refactoring der AJAX-Parameter
@@ -304,7 +308,7 @@ if(isset($_GET['photosOnMap']))
 					{
 						photoData.neighbours.forEach(function(entry)
 						{
-							editMarker.neighbours.push(entry.neighbour_id);
+							pushToArrayUnlessExist(editMarker.neighbours, entry.neighbour_id);
 							map.markerHash[entry.neighbour_id].setIcon('images/marker_orange.png');
 						});
 					}
