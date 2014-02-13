@@ -95,11 +95,10 @@ if(isset($_GET['photosOnMap']))
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="index.html">Home</a></li>
-            <li><a href="edit_admin.php">Administration</a></li>
             <li><a href="edit_infotext.php">Infotexte</a></li>
       <li><a href="edit_picture.php">Fotos</a></li>
       <li class="dropdown">
-        <a href="edit_admin.php" class="dropdown-toggle" data-toggle="dropdown">Übersichtskarten <b class="caret"></b></a>
+        <a href="edit_map.php" class="dropdown-toggle" data-toggle="dropdown">Übersichtskarten <b class="caret"></b></a>
          <ul class="dropdown-menu">
           <li><a href="edit_map.php?map_id=1">Halle 1/2</a></li>
           <li><a href="edit_map.php?map_id=2">KE</a></li>
