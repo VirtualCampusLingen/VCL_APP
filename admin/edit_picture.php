@@ -34,7 +34,8 @@ if(isset($_POST['Upload'])){
           break;
       }
       array_push($notifications["error"], $error);
-  } else {
+  } 
+  else {
       // array of valid extensions
       $validExtensions = array('.jpg', '.jpeg', '.gif', '.png');
       // get extension of the uploaded file
@@ -43,13 +44,13 @@ if(isset($_POST['Upload'])){
       if (in_array($fileExtension, $validExtensions)) {
           // we are renaming the file so we can upload files with the same name
           $newName = $_FILES['fileToUpload']['name'];
-          $destination = 'assets/img_360/' . $newName;
+          $panorama_path = 'assets/img_360/' . $newName;
           $description = mysql_real_escape_string($_POST['description']);
-          $photo_name = mysql_real_escape_string($_POST['photo_name']);
-          if (move_uploaded_file($_FILES['fileToUpload']['tmp_name'], $destination)) {
-            chmod($destination,0644);
-            $res = sql("INSERT INTO `db_vcl`.`photo` (`photo_name`, `description`, `path`, `uploaded_at`, `x_position`, `y_position`, `map_id`) 
-              VALUES ('".$photo_name."', '".$description."', '".$destination."', '".date('Y-m-j')."', NULL, NULL, NULL)");
+          $name = mysql_real_escape_string($_POST['name']);
+          if (move_uploaded_file($_FILES['fileToUpload']['tmp_name'], $panorama_path)) {
+            chmod($panorama_path, 0644);
+            $res = sql("INSERT INTO panorama (name, description, panorama_path, uploaded_at)
+            			VALUES('$name', '$description', '$panorama_path', NOW())");
             respondeToSql($res);
           }
       } else {
@@ -59,31 +60,31 @@ if(isset($_POST['Upload'])){
   }
 }
 
-//Update photo
-if(isset($_POST['update_photo_id'])){
-  $p_id = mysql_real_escape_string($_POST['update_photo_id']);
-  $p_name = mysql_real_escape_string($_POST['photo_name']);
-  $p_description = mysql_real_escape_string($_POST['photo_description']);
-  $res = sql("UPDATE photo SET photo_name='".$p_name."', description='".$p_description."' WHERE PhotoID='".$p_id."'");
+//Update Panorama
+if(isset($_POST['update_panorama'])){
+  $panorama_id = mysql_real_escape_string($_POST['update_panorama']);
+  $name = mysql_real_escape_string($_POST['name']);
+  $description = mysql_real_escape_string($_POST['photo_description']);
+  $res = sql("UPDATE panorama SET name = '$name', description = '$description' WHERE panorama_id = $panorama_id");
   respondeToSql($res);
 }
 
-//Delete Phototv
-if (isset($_POST['delete_photo'])){
-  $del_photo_id = mysql_real_escape_string($_POST['delete_photo']);
-  $res = sql("DELETE FROM photo WHERE PhotoID='".$del_photo_id."'");
+//Delete Panorama
+if (isset($_POST['delete_panorama'])){
+  $del_panorama_id = mysql_real_escape_string($_POST['delete_panorama']);
+  $res = sql("DELETE FROM panorama WHERE panorama_id = $del_panorama_id");
   respondeToSql($res);
 }
 
-//all photos
-$photos = sql("SELECT * FROM photo");
+//All Panoramas
+$photos = sql("SELECT * FROM panorama");
 while($row = mysql_fetch_assoc($photos)){
-  $index = $row["PhotoID"];
-  $photo[$index]["PhotoID"] = $row["PhotoID"];
-  $photo[$index]["photo_name"] = $row["photo_name"];
+  $index = $row["panorama_id"];
+  $photo[$index]["panorama_id"] = $row["panorama_id"];
+  $photo[$index]["name"] = $row["name"];
   $photo[$index]["description"] = $row["description"];
   $photo[$index]["uploaded_at"] = $row["uploaded_at"];
-  $photo[$index]["path"] = $row["path"];
+  $photo[$index]["panorama_path"] = $row["panorama_path"];
 }
 
 function respondeToSql($sql_statement){
@@ -91,16 +92,16 @@ function respondeToSql($sql_statement){
   if(!$sql_statement){
     //internal server error
     array_push($notifications["error"], "Ein Fehler ist aufgetreten");
-    http_response_code(500);
+    // http_response_code(500);
   }else if(mysql_affected_rows() == 0){
     //no row affected
     array_push($notifications["warning"], "Keine Änderungen vorgenommen");
-    http_response_code(304);
+    // http_response_code(304);
   }
   else{  
     //sql success
     array_push($notifications["success"], "Erfolgreich");
-    http_response_code(200);
+    // http_response_code(200);
   }
 }
 
@@ -184,7 +185,7 @@ foreach ($notifications as $type => $notfiy_array) {
       function deletePhoto(photo_id){
         $.ajax({
           type: "POST",
-          data: {'delete_photo': photo_id},
+          data: {'delete_panorama': photo_id},
           error: function(xhr, status, error) {
             setFlash('error', 'Foto konnte nicht gelöscht werden')
           },
@@ -240,8 +241,8 @@ foreach ($notifications as $type => $notfiy_array) {
               <input type="file" class="form-control" name="fileToUpload" id="fileToUpload">
             </div>
             <div class="form-group">
-              <label class="sr-only" for="photo_name">Photoname</label>
-              <input class="form-control" id="photo_name" name="photo_name" placeholder="Fotoname">
+              <label class="sr-only" for="name">Name</label>
+              <input class="form-control" id="name" name="name" placeholder="Fotoname">
             </div>
             <div class="form-group">
               <label class="sr-only" for="description">Description</label>
@@ -277,10 +278,10 @@ foreach ($notifications as $type => $notfiy_array) {
                       <span class='glyphicon glyphicon-picture'></span> anzeigen
                     </button>
                     <span id=picture_thumb_".$key." style='display: none'>
-                      <img src='"."/admin/".$value["path"]."' width='300px' alt='' class='img-thumbnail'>
+                      <img src='"."/admin/".$value["panorama_path"]."' width='300px' alt='' class='img-thumbnail'>
                     </span>
                   </td>
-                  <td id='photo_name'>".htmlspecialchars($value["photo_name"])."</td>
+                  <td id='name'>".htmlspecialchars($value["name"])."</td>
                   <td id='description'>".htmlspecialchars($value["description"])."</td>
                   <td id='uploaded_at'>".htmlspecialchars($value["uploaded_at"])."</td>
                   <td>
@@ -291,9 +292,9 @@ foreach ($notifications as $type => $notfiy_array) {
                 </tr>
                 <tr id='photo_row_edit_".$key."' class='edit_row_toggle'>
                   <form name='update_photo_row_".$key."' method='POST'>
-                    <input type='hidden' name='update_photo_id' value='".$key."'></input>
+                    <input type='hidden' name='update_panorama' value='".$key."'></input>
                     <td><span>ändern</span></td>
-                    <td><input name='photo_name' value='".htmlspecialchars($value["photo_name"])."'></input></td>
+                    <td><input name='name' value='".htmlspecialchars($value["name"])."'></input></td>
                     <td><input name='photo_description' value='".htmlspecialchars($value["description"])."'></input></td>
                     <td><span>".htmlspecialchars($value["uploaded_at"])."</span></td>
                     <td><button type='submit' class='btn-success btn btn-xs'>aktualisieren</button></td>
