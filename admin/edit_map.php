@@ -20,21 +20,21 @@ if(isset($_POST['lat']) && isset($_POST['lng']) && isset($_POST['photoId']))
 	$photoId = mysql_escape_string($_POST['photoId']);
 	$lat = mysql_escape_string($_POST['lat']);
 	$lng = mysql_escape_string($_POST['lng']);
-	sql("UPDATE photo SET x_position = $lat, y_position = $lng WHERE PhotoID = $photoId");
+	sql("UPDATE panorama SET position = GeomFromText('POINT($lat $lng)') WHERE panorama_id = $photoId");
 }
 
 if(isset($_GET['photosOnMap']))
 {
 	$mapId = mysql_escape_string($_GET['photosOnMap']);
-	$photosOnMap = sql("SELECT * FROM photo WHERE map_id = $mapId");
+	$photosOnMap = sql("SELECT panorama_id, X(position) AS lat, Y(position) AS lng, description FROM panorama WHERE level = $mapId");
 
 	$photoArray = array();
 	$i = 0;
     while ($row = mysql_fetch_assoc($photosOnMap)) 
     {
-		$photoArray[$i] = array('photoId' => $row['PhotoID'], 
-								'lat' => $row['x_position'], 
-								'lng' => $row['y_position'], 
+		$photoArray[$i] = array('photoId' => $row['panorama_id'], 
+								'lat' => $row['lat'], 
+								'lng' => $row['lng'], 
 								'desc' => $row['description']);
 		$i++;
 	}
@@ -312,13 +312,13 @@ if(isset($_GET['photosOnMap']))
 							icon: 'images/marker_green.png',
 							infoWindow: infoWindow,
 							infoWindowOpen: false,
-              draggable: true,
+              				draggable: true,
 							photoId: value.photoId,
 							neighbours: []
 						});
 						map.markerHash[value.photoId] = marker;
 						google.maps.event.addListener(marker, 'dragend', function(){markerDragEnd(marker)})
-            google.maps.event.addListener(marker, 'click', function()
+            			google.maps.event.addListener(marker, 'click', function()
 						{
 							inEditMode() ? toggleNeighbour(marker) : showInfoWindow(marker);
 						});
@@ -381,12 +381,12 @@ if(isset($_GET['photosOnMap']))
 
       <form method="POST">
       	  <?php
-      	  	$allPhotos = sql("SELECT * FROM photo");
+      	  	$allPhotos = sql("SELECT * FROM panorama");
             echo("<select name='photoId'>");
             $i = 0;
             while($row = mysql_fetch_assoc($allPhotos)){
-              $photo_hsh[$i]["PhotoID"] = $row["PhotoID"];
-              $photo_hsh[$i]["photo_name"] = $row["photo_name"];
+              $photo_hsh[$i]["PhotoID"] = $row["panorama_id"];
+              $photo_hsh[$i]["photo_name"] = $row["name"];
 
               echo("<option value='" .$photo_hsh[$i]["PhotoID"]. "'>" .$photo_hsh[$i]["photo_name"]. "</option>");
               $i++;
