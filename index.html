@@ -18,6 +18,15 @@
     </div>
   </body>
 <script type="text/javascript">
+  $("body").appendPartial('start_modal', function(){
+    $("#startUpModal").modal();
+    $("#startUpModal").on('hidden.bs.modal', function () {
+      $("#info").show();
+    })
+    $("#info").hide();
+  });
+</script>
+<script type="text/javascript">
 
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-44115425-1']);

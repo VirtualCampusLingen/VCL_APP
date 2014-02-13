@@ -3,9 +3,11 @@ var initPosPanoID, streetView;
 
 function initialize() {
   var streetViewOptions = {
+
     zoom: 1,
     panoProvider:  getCustomPanorama,
-    pano:  "67",
+    // TODO: set to first panorama in DB
+    pano:  "9",
     mode: 'html5',
     pov : {
       heading : 270,
@@ -50,10 +52,7 @@ function getCustomPanorama(panoID) {
   $("#info").empty()
   for(key in info_texts){
     if (info_texts.hasOwnProperty(key)){
-      // console.log(key)
-      // console.log(info_texts)
-      // console.log(info_texts[key])
-      addInfoIcon();
+      addInfoIcon(info_texts[key]);
     }
   }
 
@@ -103,7 +102,7 @@ function getPanoJson(panoID){
     var xhr = new ActiveXObject("Microsoft.XMLHTTP");
   }
 
-  xhr.open("GET", "/admin/test_new.php?id="+panoID, false);
+  xhr.open("GET", "/admin/apis/panorama_data_api.php?id="+panoID, false);
   xhr.send();
   var response = xhr.responseText;
   var json = JSON.parse(response);
@@ -111,13 +110,13 @@ function getPanoJson(panoID){
   return pano;
 }
 
-function addInfoIcon(){
-  var text = "Lorem Ipsum Foo Bar Lorem <b>Ipsum</b> Foo Bar Lorem Ipsum Foo Bar Lorem Ipsum Foo Bar Lorem Ipsum Foo Bar"
+function addInfoIcon(infoTextObj){
   var id = Date.now()
   $("#info").appendPartial('info_modal', function(){
     $("#temp").attr("id", id);
-    $("button[data-target='#temp']").attr("data-target", "#"+id);
-    $("#"+id+" .modal-body").html(text);
+    $("button[data-target='#temp']").attr("data-target", "#"+id).text(infoTextObj.infotext_title);
+    $("#"+id+" .modal-title").text(infoTextObj.infotext_title);
+    $("#"+id+" .modal-body").html(infoTextObj.infotext_text);
   })
 }
 

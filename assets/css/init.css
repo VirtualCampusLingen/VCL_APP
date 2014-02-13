@@ -12,3 +12,7 @@
 .modal_button {
   margin-bottom: 5px;
 }
+
+body.modal-open {
+  margin-right: 0px
+}
