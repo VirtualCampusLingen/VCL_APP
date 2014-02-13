@@ -25,3 +25,21 @@
   display: none;
   float: right;
 }
+
+#level-selector {
+	margin: 10px;
+}
+
+#elevator {
+	margin: 20px 0px;
+}
+
+#map-canvas {
+	width: 94%;
+	height: 400px;
+	float: right;
+}
+
+.clear {
+	clear: both;
+}
