@@ -14,13 +14,24 @@ error_reporting(null);
 
 <?php
 
-if(isset($_POST['lat']) && isset($_POST['lng']) && isset($_POST['photoId']))
+if(isset($_GET['area']))
+{
+	$area = mysql_escape_string($_GET['area']);
+	$sql_level = sql("SELECT level FROM map WHERE area = $area ORDER BY level ASC LIMIT 1");
+	
+	while ($row = mysql_fetch_assoc($sql_level)) 
+    {
+    	$level = $row['level'];
+	}
+}
+
+if(isset($_POST['lat']) && isset($_POST['lng']) && isset($_POST['panoramaId']))
 {
 	// TODO: mapId festlegen
-	$photoId = mysql_escape_string($_POST['photoId']);
+	$panoramaId = mysql_escape_string($_POST['panoramaId']);
 	$lat = mysql_escape_string($_POST['lat']);
 	$lng = mysql_escape_string($_POST['lng']);
-	sql("UPDATE panorama SET position = GeomFromText('POINT($lat $lng)') WHERE panorama_id = $photoId");
+	sql("UPDATE panorama SET position = GeomFromText('POINT($lat $lng)') WHERE panorama_id = $panoramaId");
 }
 
 if(isset($_GET['photosOnMap']))
@@ -32,7 +43,7 @@ if(isset($_GET['photosOnMap']))
 	$i = 0;
     while ($row = mysql_fetch_assoc($photosOnMap)) 
     {
-		$photoArray[$i] = array('photoId' => $row['panorama_id'], 
+		$photoArray[$i] = array('panoramaId' => $row['panorama_id'], 
 								'lat' => $row['lat'], 
 								'lng' => $row['lng'], 
 								'desc' => $row['description']);
@@ -100,8 +111,8 @@ if(isset($_GET['photosOnMap']))
       <li class="dropdown">
         <a href="edit_map.php" class="dropdown-toggle" data-toggle="dropdown">Übersichtskarten <b class="caret"></b></a>
          <ul class="dropdown-menu">
-          <li><a href="edit_map.php?map_id=1">Halle 1/2</a></li>
-          <li><a href="edit_map.php?map_id=2">KE</a></li>
+          <li><a href="edit_map.php?area=1">Halle 1/2</a></li>
+          <li><a href="edit_map.php?area=2">KE</a></li>
               </ul> 
       </li>
           </ul>
@@ -126,12 +137,12 @@ if(isset($_GET['photosOnMap']))
       <script src="assets/js/bootstrap-select.min.js"></script>
 
       <ul id="map_tabs" class="nav nav-tabs">
-        <li><a href="#Halle1_2" data-map-id="1" data-href="edit_map.php?map_id=1" data-toggle="tab">Halle 1/2</a></li>
+        <li><a href="#Halle1_2" data-map-id="1" data-href="edit_map.php?area=1" data-toggle="tab">Halle 1/2</a></li>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-no-action="true" data-toggle="dropdown">KE Gebäude<b class="caret"></b></a>
           <ul class="dropdown-menu">
-            <li><a href="#KEEG" data-map-id="2" data-href="edit_map.php?map_id=2" data-toggle="tab">KE EG</a></li>
-            <li><a href="#KE1OG" data-map-id="3" data-href="edit_map.php?map_id=3" data-toggle="tab">KE 1OG</a></li>
+            <li><a href="#KEEG" data-map-id="2" data-href="edit_map.php?area=2" data-toggle="tab">KE EG</a></li>
+            <li><a href="#KE1OG" data-map-id="3" data-href="edit_map.php?area=3" data-toggle="tab">KE 1OG</a></li>
           </ul>
         </li>
         <div id="editPanel" class="pull-right" style="display: none">
@@ -156,9 +167,12 @@ if(isset($_GET['photosOnMap']))
         var map;
         var marker;
         var editMarker = null;
+        var area = <?=$area?>;
+        var level = <?=$level?>;
 
-      	function initializeMap()
+      	function initializeMap(area, level)
       	{
+      		mapData = JSON.parse(getMapData(area, level).responseText);
 			var mapOptions =
 			{
 				center: new google.maps.LatLng(52.51947, 7.32260),
@@ -179,6 +193,17 @@ if(isset($_GET['photosOnMap']))
       			}
 			});
       	}
+      	
+      	function getMapData(area, level)
+      	{
+      		return $.ajax(
+			{
+				url: 'get_map_data.php',
+				type: 'POST',
+				async: false,
+				data: {'area': area, 'level': level}
+			});
+      	}
 
       	function inEditMode()
       	{
@@ -195,10 +220,10 @@ if(isset($_GET['photosOnMap']))
 		{
 			if(marker == editMarker) return;
 
-			var markerIndex = $.inArray(marker.photoId, editMarker.neighbours);
+			var markerIndex = $.inArray(marker.panoramaId, editMarker.neighbours);
 			if(markerIndex == -1)
 			{
-				editMarker.neighbours.push(marker.photoId);
+				editMarker.neighbours.push(marker.panoramaId);
 				marker.setIcon('images/marker_orange.png');
 			}
 			else
@@ -220,11 +245,11 @@ if(isset($_GET['photosOnMap']))
 			if(!inEditMode()) return;
       var neighbours = {};
       editMarker.neighbours.forEach(function(neighbourId){
-        var ownLatLng = map.markerHash[editMarker.photoId].getPosition();
+        var ownLatLng = map.markerHash[editMarker.panoramaId].getPosition();
         var neighbourLatLng = map.markerHash[neighbourId].getPosition();
         neighbours[neighbourId] = computeHeading(neighbourLatLng, ownLatLng);
       });
-			var json = {'saveNeighbour': true, 'saveNeighboursFor': {'photoId': editMarker.photoId, 'neighbours': neighbours}};
+			var json = {'saveNeighbour': true, 'saveNeighboursFor': {'panoramaId': editMarker.panoramaId, 'neighbours': neighbours}};
 			$.ajax(
 			{
 				url: 'apis/edit_map_api.php',
@@ -259,7 +284,7 @@ if(isset($_GET['photosOnMap']))
     {
       //Recalculate Heading for Marker -> Neighbours && Neighbour -> Marker
       //get all neighbours for Marker
-      getAllNeighboursFor(marker.photoId, function(data)
+      getAllNeighboursFor(marker.panoramaId, function(data)
       {
         photoData = JSON.parse(data)['Panoid'];
         if(photoData.neighbours)
@@ -271,7 +296,7 @@ if(isset($_GET['photosOnMap']))
            var ownLatLng = marker.getPosition();
            var neighbourLatLng = map.markerHash[entry.neighbour_id].getPosition();
            var computedHeading = computeHeading(neighbourLatLng, ownLatLng);
-           var json = {'updateHeading': true, 'photoId': marker.photoId, 'neighbourId': entry.neighbour_id, 'heading': computedHeading}
+           var json = {'updateHeading': true, 'panoramaId': marker.panoramaId, 'neighbourId': entry.neighbour_id, 'heading': computedHeading}
            //send to Api
            $.ajax({
             url: 'apis/edit_map_api.php',
@@ -298,7 +323,7 @@ if(isset($_GET['photosOnMap']))
 					{
 						var content = "<p>" + value.desc + "</p>";
 						content += "<button type='button' class='btn btn-info btn-xs' onclick='enterEditMode("
-								+ value.photoId
+								+ value.panoramaId
 								+ ")'>Bearbeiten</button>";
 
 						var infoWindow = new google.maps.InfoWindow(
@@ -313,10 +338,10 @@ if(isset($_GET['photosOnMap']))
 							infoWindow: infoWindow,
 							infoWindowOpen: false,
               				draggable: true,
-							photoId: value.photoId,
+							panoramaId: value.panoramaId,
 							neighbours: []
 						});
-						map.markerHash[value.photoId] = marker;
+						map.markerHash[value.panoramaId] = marker;
 						google.maps.event.addListener(marker, 'dragend', function(){markerDragEnd(marker)})
             			google.maps.event.addListener(marker, 'click', function()
 						{
@@ -337,17 +362,17 @@ if(isset($_GET['photosOnMap']))
       if($.inArray(value, array) == -1) array.push(value);
     }
 
-		function enterEditMode(photoId)
+		function enterEditMode(panoramaId)
 		{
 			// TODO: Refactoring der AJAX-Parameter
 			$('#editPanel').show();
-			editMarker = map.markerHash[photoId];
+			editMarker = map.markerHash[panoramaId];
 			editMarker.setIcon('images/marker_blue.png');
 			for(key in map.markerHash)
 			{
 				map.markerHash[key].infoWindow.close();
 			}
-      getAllNeighboursFor(editMarker.photoId, function(data)
+      getAllNeighboursFor(editMarker.panoramaId, function(data)
       {
          photoData = JSON.parse(data)['Panoid'];
          if(photoData.neighbours)
@@ -361,19 +386,19 @@ if(isset($_GET['photosOnMap']))
        });
 		}
 
-    function getAllNeighboursFor(photoId, successCallback){
+    function getAllNeighboursFor(panoramaId, successCallback){
       $.ajax(
       {
         url: 'test_new.php',
         type: 'GET',
-        data: 'id=' + photoId,
+        data: 'id=' + panoramaId,
         success: function(data){ successCallback(data) }
       });
     }
 
       	google.maps.event.addDomListener(window, 'load', function()
 		{
-			initializeMap();
+			initializeMap(area, level);
 		}
 		);
 
@@ -382,13 +407,13 @@ if(isset($_GET['photosOnMap']))
       <form method="POST">
       	  <?php
       	  	$allPhotos = sql("SELECT * FROM panorama");
-            echo("<select name='photoId'>");
+            echo("<select name='panoramaId'>");
             $i = 0;
             while($row = mysql_fetch_assoc($allPhotos)){
-              $photo_hsh[$i]["PhotoID"] = $row["panorama_id"];
+              $photo_hsh[$i]["panoramaId"] = $row["panorama_id"];
               $photo_hsh[$i]["photo_name"] = $row["name"];
 
-              echo("<option value='" .$photo_hsh[$i]["PhotoID"]. "'>" .$photo_hsh[$i]["photo_name"]. "</option>");
+              echo("<option value='" .$photo_hsh[$i]["panoramaId"]. "'>" .$photo_hsh[$i]["photo_name"]. "</option>");
               $i++;
             }
             echo("</select>");
