@@ -389,7 +389,7 @@ if(isset($_GET['photosOnMap']))
     function getAllNeighboursFor(panoramaId, successCallback){
       $.ajax(
       {
-        url: 'test_new.php',
+        url: 'apis/panorama_data_api.php',
         type: 'GET',
         data: 'id=' + panoramaId,
         success: function(data){ successCallback(data) }
