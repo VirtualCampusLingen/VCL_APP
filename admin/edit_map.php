@@ -165,7 +165,7 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
       </ul>
       
       <div id="level-selector" class="btn-group btn-group-vertical">
-      	<img id="elevator" src="images/elevator.png" />
+      	<img id="elevator" src="assets/img/elevator.png" />
       	<?php
       		foreach ($levels as $currLevel => $key) {
 				echo '<button type="button" id="level' . 
@@ -287,12 +287,12 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 			if(markerIndex == -1)
 			{
 				editMarker.neighbours.push(marker.panoramaId);
-				marker.setIcon('images/marker_orange.png');
+				marker.setIcon('assets/img/marker_orange.png');
 			}
 			else
 			{
 				editMarker.neighbours.splice(markerIndex, 1);
-				marker.setIcon('images/marker_green.png');
+				marker.setIcon('assets/img/marker_green.png');
 			}
 		}
 
@@ -332,7 +332,7 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 			editMarker = null;
 			for(var key in map.markerHash)
 			{
-				map.markerHash[key].setIcon('images/marker_green.png');
+				map.markerHash[key].setIcon('assets/img/marker_green.png');
 			}
 			$('#editPanel').hide();
 		}
@@ -402,7 +402,7 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 						{
 							position: new google.maps.LatLng(value.lat, value.lng),
 							map: map,
-							icon: 'images/marker_green.png',
+							icon: 'assets/img/marker_green.png',
 							infoWindow: infoWindow,
 							infoWindowOpen: false,
               				draggable: true,
@@ -437,7 +437,7 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 			// TODO: Refactoring der AJAX-Parameter
 			$('#editPanel').show();
 			editMarker = map.markerHash[panoramaId];
-			editMarker.setIcon('images/marker_blue.png');
+			editMarker.setIcon('assets/img/marker_blue.png');
 			for(key in map.markerHash)
 			{
 				map.markerHash[key].infoWindow.close();
@@ -450,7 +450,7 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
            photoData.neighbours.forEach(function(entry)
            {
              pushToArrayUnlessExist(editMarker.neighbours, entry.neighbour_id);
-             map.markerHash[entry.neighbour_id].setIcon('images/marker_orange.png');
+             map.markerHash[entry.neighbour_id].setIcon('assets/img/marker_orange.png');
            });
          }
        });
