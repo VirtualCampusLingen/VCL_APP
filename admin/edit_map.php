@@ -115,7 +115,7 @@ if(isset($_GET['photosOnMap']))
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="index.html">VCL</a>
+          <a class="navbar-brand" href="index.html"><img src="assets/img/Logo.png" width="37" height="20" alt="home"/></a>
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
