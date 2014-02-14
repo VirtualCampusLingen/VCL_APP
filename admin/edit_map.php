@@ -188,32 +188,41 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
         var editMarker = null;
         var area = <?=$area?>;
         var level = <?=$level?>;
+        var minZoom;
+        var allowedBounds;
+        var lastValidCenter;
 
       	function initializeMap(givenArea, givenLevel)
       	{
       		mapData = JSON.parse(getMapData(area, level).responseText).map_data;
       		// set global JS Variable
-          area = givenArea;
-          level = givenLevel;
+          	area = givenArea;
+          	level = givenLevel;
+			minZoom = parseInt(mapData.min_zoom);
+        	allowedBounds = new google.maps.LatLngBounds(
+				new google.maps.LatLng(mapData.bound_sw_lat, mapData.bound_sw_lng),
+				new google.maps.LatLng(mapData.bound_ne_lat, mapData.bound_ne_lng)
+			);
           //toggle classes
       		$(".active-level").removeClass('btn-primary').removeClass('active-level').addClass('btn-default');
       		$("#level" + level).removeClass('btn-default').addClass('btn-primary').addClass('active-level');
 			var mapOptions =
 			{
 				center: new google.maps.LatLng(mapData.center_lat, mapData.center_lng),
-				zoom: parseInt(mapData.min_zoom),
+				zoom: minZoom,
 				markerHash: {}
 			};
       		map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
       		overlayBounds = new google.maps.LatLngBounds(
-				new google.maps.LatLng(52.51770, 7.32057),
-				new google.maps.LatLng(52.52053, 7.32379)
+				new google.maps.LatLng(mapData.overlay_sw_lat, mapData.overlay_sw_lng),
+				new google.maps.LatLng(mapData.overlay_ne_lat, mapData.overlay_ne_lng)
 			);
 			overlay = new google.maps.GroundOverlay(
 				mapData.overlay_path,
 				overlayBounds
 			);
 			overlay.setMap(map);
+			lastValidCenter = map.getCenter();
       		marker = new google.maps.Marker();
 
       		positionPhotos();
@@ -226,7 +235,27 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 					fillForm(event.latLng, givenArea, givenLevel);
       			}
 			});
+			google.maps.event.addListener(map, 'center_changed', checkBounds);
+			google.maps.event.addListener(map, 'zoom_changed', checkZoom);
       	}
+      	
+      	function checkBounds()
+		{
+			if(allowedBounds.contains(map.getCenter()))
+			{
+				lastValidCenter = map.getCenter();
+				return;
+			}
+			map.panTo(lastValidCenter);
+		}
+		
+		function checkZoom()
+		{
+			if(map.getZoom() < minZoom)
+			{
+				map.setZoom(minZoom);
+			}
+		}
       	
       	function getMapData(area, level)
       	{
