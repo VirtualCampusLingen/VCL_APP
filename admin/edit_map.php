@@ -13,16 +13,30 @@ error_reporting(null);
 ?>
 
 <?php
-
 if(isset($_GET['area']))
-{
 	$area = mysql_escape_string($_GET['area']);
+elseif(isset($_POST['area']))
+	$area = mysql_escape_string($_POST['area']);
+else
+	$area = 1;
+
+if(isset($_POST['level']))
+{
+	$level = mysql_escape_string($_POST['level']);
+}
+else {
 	$sql_level = sql("SELECT level FROM map WHERE area = $area ORDER BY level ASC LIMIT 1");
 	
 	while ($row = mysql_fetch_assoc($sql_level)) 
-    {
-    	$level = $row['level'];
+	{
+		$level = $row['level'];
 	}
+}
+
+$sql_levels = sql("SELECT DISTINCT level FROM map WHERE area = $area ORDER BY level DESC");
+while ($row = mysql_fetch_assoc($sql_levels)) 
+{
+	$levels[] += $row['level'];
 }
 
 if(isset($_POST['lat']) && isset($_POST['lng']) && isset($_POST['panoramaId']))
@@ -137,14 +151,8 @@ if(isset($_GET['photosOnMap']))
       <script src="assets/js/bootstrap-select.min.js"></script>
 
       <ul id="map_tabs" class="nav nav-tabs">
-        <li><a href="#Halle1_2" data-map-id="1" data-href="edit_map.php?area=1" data-toggle="tab">Halle 1/2</a></li>
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-no-action="true" data-toggle="dropdown">KE Gebäude<b class="caret"></b></a>
-          <ul class="dropdown-menu">
-            <li><a href="#KEEG" data-map-id="2" data-href="edit_map.php?area=2" data-toggle="tab">KE EG</a></li>
-            <li><a href="#KE1OG" data-map-id="3" data-href="edit_map.php?area=3" data-toggle="tab">KE 1OG</a></li>
-          </ul>
-        </li>
+        <li><a href="#" onclick="changeArea(1);" data-toggle="tab">Kaiserstraße</a></li>
+        <li><a href="#" onclick="changeArea(2);" data-toggle="tab">Baccumer Straße</a></li>
         <div id="editPanel" class="pull-right" style="display: none">
         	<button type="button" class="btn btn-success" onclick="saveNeighbours()">Speichern</button>
         	<button type="button" class="btn btn-danger" onclick="exitEditMode()">Abbrechen</button>
@@ -153,10 +161,15 @@ if(isset($_GET['photosOnMap']))
       
       <div id="level-selector" class="btn-group btn-group-vertical">
       	<img id="elevator" src="images/elevator.png" />
-      	<button type="button" class="btn btn-default">3</button>
-      	<button type="button" class="btn btn-default">2</button>
-      	<button type="button" class="btn btn-default">1</button>
-      	<button type="button" class="btn btn-default">0</button>
+      	<?php
+      		foreach ($levels as $currLevel => $key) {
+				echo '<button type="button" id="level' . 
+				$key . '" class="btn btn-default" onclick="initializeMap(' . 
+				$area . ', ' . 
+				$key . ')">' . 
+				$key . '</button>';
+			}
+      	?>
       </div>
       
       <div id="map-canvas"></div>
@@ -172,11 +185,14 @@ if(isset($_GET['photosOnMap']))
 
       	function initializeMap(area, level)
       	{
-      		mapData = JSON.parse(getMapData(area, level).responseText);
+      		$(".active-level").removeClass('btn-primary').removeClass('active-level');
+      		$("#level" + level).removeClass('btn-default').addClass('btn-primary').addClass('active-level');
+      		
+      		mapData = JSON.parse(getMapData(area, level).responseText).map_data;
 			var mapOptions =
 			{
-				center: new google.maps.LatLng(52.51947, 7.32260),
-				zoom: 18,
+				center: new google.maps.LatLng(mapData.center_lat, mapData.center_lng),
+				zoom: parseInt(mapData.min_zoom),
 				markerHash: {}
 			};
       		map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
@@ -362,6 +378,8 @@ if(isset($_GET['photosOnMap']))
 		{
 			$('#lat').val(location.lat());
 			$('#lng').val(location.lng());
+			$('#area').val(area);
+			$('#level').val(level);
 		}
 
     function pushToArrayUnlessExist(array, value){
@@ -401,6 +419,12 @@ if(isset($_GET['photosOnMap']))
         success: function(data){ successCallback(data) }
       });
     }
+    
+	function changeArea(area)
+	{
+		window.location.href = "edit_map.php?area=" + area;
+		window.load;
+	}
 
       	google.maps.event.addDomListener(window, 'load', function()
 		{
@@ -424,8 +448,11 @@ if(isset($_GET['photosOnMap']))
             }
             echo("</select>");
           ?>
+          
       	 <input type="hidden" name="lat" id="lat">
 		 <input type="hidden" name="lng" id="lng">
+		 <input type="hidden" name="area" id="area">
+		 <input type="hidden" name="level" id="level">
 		 <button type="submit" class="btn btn-success">Speichern</button>
       </form>
       
