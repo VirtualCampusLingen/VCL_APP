@@ -185,10 +185,11 @@ if(isset($_GET['photosOnMap']))
 
       	function initializeMap(area, level)
       	{
+      		mapData = JSON.parse(getMapData(area, level).responseText).map_data;
+      		
       		$(".active-level").removeClass('btn-primary').removeClass('active-level');
       		$("#level" + level).removeClass('btn-default').addClass('btn-primary').addClass('active-level');
       		
-      		mapData = JSON.parse(getMapData(area, level).responseText).map_data;
 			var mapOptions =
 			{
 				center: new google.maps.LatLng(mapData.center_lat, mapData.center_lng),
@@ -196,6 +197,15 @@ if(isset($_GET['photosOnMap']))
 				markerHash: {}
 			};
       		map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+      		overlayBounds = new google.maps.LatLngBounds(
+				new google.maps.LatLng(52.51770, 7.32057),
+				new google.maps.LatLng(52.52053, 7.32379)
+			);
+			overlay = new google.maps.GroundOverlay(
+				mapData.overlay_path,
+				overlayBounds
+			);
+			overlay.setMap(map);
       		marker = new google.maps.Marker();
 
       		positionPhotos();
