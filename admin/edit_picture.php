@@ -167,7 +167,6 @@ foreach ($notifications as $type => $notfiy_array) {
               <li><a href="edit_map.php?area=1">Halle 1/2</a></li>
               <li><a href="edit_map.php?area=2">KE</a></li>
             </ul>
-            <li><button class="btn btn-success" style="margin-top: 7px;">online</button></li>  
           </ul>
         </div><!--/.navbar-collapse -->
       </div>

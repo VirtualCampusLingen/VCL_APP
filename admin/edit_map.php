@@ -188,7 +188,7 @@ if(isset($_GET['photosOnMap']))
       	{
       		mapData = JSON.parse(getMapData(area, level).responseText).map_data;
       		
-      		$(".active-level").removeClass('btn-primary').removeClass('active-level');
+      		$(".active-level").removeClass('btn-primary').removeClass('active-level').addClass('btn-default');
       		$("#level" + level).removeClass('btn-default').addClass('btn-primary').addClass('active-level');
 
 			var mapOptions =
