@@ -177,6 +177,7 @@ if(isset($_GET['photosOnMap']))
       <div class="clear"></div>
       
       <script>
+
         var map;
         var marker;
         var editMarker = null;
@@ -189,7 +190,7 @@ if(isset($_GET['photosOnMap']))
       		
       		$(".active-level").removeClass('btn-primary').removeClass('active-level');
       		$("#level" + level).removeClass('btn-default').addClass('btn-primary').addClass('active-level');
-      		
+
 			var mapOptions =
 			{
 				center: new google.maps.LatLng(mapData.center_lat, mapData.center_lng),
@@ -210,7 +211,7 @@ if(isset($_GET['photosOnMap']))
 
       		positionPhotos();
 
-      		google.maps.event.addListener(map, 'click', function(event)
+      		google.maps.event.addListener(overlay, 'click', function(event)
       		{
       			if(!inEditMode())
       			{
