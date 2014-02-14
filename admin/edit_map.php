@@ -340,8 +340,17 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 
 		function showInfoWindow(marker)
 		{
-			marker.infoWindowOpen ? marker.infoWindow.close() : marker.infoWindow.open(map, marker);
-			marker.infoWindowOpen = !marker.infoWindowOpen;
+			var isOpen = marker.infoWindowOpen;
+			for(var key in map.markerHash)
+			{
+				map.markerHash[key].infoWindow.close();
+				map.markerHash[key].infoWindowOpen = false;
+			}
+			if(!isOpen)
+			{
+				marker.infoWindow.open(map, marker);
+				marker.infoWindowOpen = true;
+			}
 		}
 
     function markerDragEnd(marker)
@@ -443,6 +452,7 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 			for(key in map.markerHash)
 			{
 				map.markerHash[key].infoWindow.close();
+				map.markerHash[key].infoWindowOpen = false;
 			}
       getAllNeighboursFor(editMarker.panoramaId, function(data)
       {
