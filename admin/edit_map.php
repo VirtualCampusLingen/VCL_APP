@@ -55,8 +55,8 @@ if(isset($_POST['lat']) && isset($_POST['lng']) && isset($_POST['panoramaId']))
 if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 {
 	$area = mysql_escape_string($_GET['panoramasOnArea']);
-  $level = mysql_escape_string($_GET['panoramasOnLevel']);
-	$currentPanoramas = sql("SELECT panorama_id, X(position) AS lat, Y(position) AS lng, description FROM panorama WHERE area = $area AND level = $level");
+  	$level = mysql_escape_string($_GET['panoramasOnLevel']);
+	$currentPanoramas = sql("SELECT panorama_id, X(position) AS lat, Y(position) AS lng, name, description FROM panorama WHERE area = $area AND level = $level");
 
 	$photoArray = array();
 	$i = 0;
@@ -65,6 +65,7 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 		$photoArray[$i] = array('panoramaId' => $row['panorama_id'], 
 								'lat' => $row['lat'], 
 								'lng' => $row['lng'], 
+								'name' => $row['name'],
 								'desc' => $row['description']);
 		$i++;
 	}
@@ -389,8 +390,9 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 					var photoData = JSON.parse(data);
 					$(photoData).each(function(index, value)
 					{
-						var content = "<p>" + value.desc + "</p>";
-						content += "<button type='button' class='btn btn-info btn-xs' onclick='enterEditMode("
+						var content = "<h4>" + value.name + "</h4>";
+						content += "<p>" + value.desc + "</p>"
+								+ "<button type='button' class='btn btn-info btn-xs' onclick='enterEditMode("
 								+ value.panoramaId
 								+ ")'>Bearbeiten</button>";
 
