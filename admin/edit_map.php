@@ -52,20 +52,20 @@ if(isset($_POST['lat']) && isset($_POST['lng']) && isset($_POST['panoramaId']))
   }else sql("UPDATE panorama SET position = GeomFromText('POINT($lat $lng)') WHERE panorama_id = $panoramaId");
 }
 
-if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
+if(isset($_GET['panoramasOnArea']))
 {
 	$area = mysql_escape_string($_GET['panoramasOnArea']);
-  $level = mysql_escape_string($_GET['panoramasOnLevel']);
-	$currentPanoramas = sql("SELECT panorama_id, X(position) AS lat, Y(position) AS lng, description FROM panorama WHERE area = $area AND level = $level");
+	$allPanoramas = sql("SELECT panorama_id, X(position) AS lat, Y(position) AS lng, description, level FROM panorama AS p1 WHERE area = $area");
 
 	$photoArray = array();
 	$i = 0;
-    while ($row = mysql_fetch_assoc($currentPanoramas)) 
+    while ($row = mysql_fetch_assoc($allPanoramas)) 
     {
 		$photoArray[$i] = array('panoramaId' => $row['panorama_id'], 
 								'lat' => $row['lat'], 
 								'lng' => $row['lng'], 
-								'desc' => $row['description']);
+								'desc' => $row['description'],
+                'level' => $row['level']);
 		$i++;
 	}
 
@@ -209,7 +209,7 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 				new google.maps.LatLng(52.51770, 7.32057),
 				new google.maps.LatLng(52.52053, 7.32379)
 			);
-			overlay = new google.maps.GroundOverlay(
+      overlay = new google.maps.GroundOverlay(
 				mapData.overlay_path,
 				overlayBounds
 			);
@@ -227,7 +227,7 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
       			}
 			});
       	}
-      	
+
       	function getMapData(area, level)
       	{
       		return $.ajax(
@@ -289,18 +289,14 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 				url: 'apis/edit_map_api.php',
 				data: json,
 				type: 'POST',
-				success: function(data)
-				{
-					// TODO:
-					//console.log(test);
-				}
 			});
 			exitEditMode();
 		}
 
 		function exitEditMode()
 		{
-			editMarker = null;
+			if(editMarker.level != level) editMarker.setMap(null);
+      editMarker = null;
 			for(var key in map.markerHash)
 			{
 				map.markerHash[key].setIcon('images/marker_green.png');
@@ -351,9 +347,9 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 
 		function positionPhotos()
 		{
-			$.ajax(
+      $.ajax(
 			{
-				data: {'panoramasOnArea': area, 'panoramasOnLevel': level},
+				data: {'panoramasOnArea': area},
 				type: 'GET',
 				success: function(data)
 				{
@@ -378,15 +374,37 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 							infoWindowOpen: false,
               				draggable: true,
 							panoramaId: value.panoramaId,
+              level: value.level,
 							neighbours: []
 						});
-						map.markerHash[value.panoramaId] = marker;
+            map.markerHash[marker.panoramaId] = marker;
+            //If marker is on another Level dont show it
+            if(level != value.level) marker.setVisible(false);
+            //If Level changes with an editMarker
+            if (editMarker && editMarker.panoramaId == marker.panoramaId && editMarker.level == level)
+            {
+              // Delete 'normal' Marker
+              marker.setMap(null);
+              // Set Edit Marker Icon to blue
+              editMarker.setIcon('images/marker_blue.png');
+            }else if(editMarker && editMarker.panoramaId == marker.panoramaId)
+            {
+              editMarker.setIcon('images/marker_blue_transparent.png');
+            }
 						google.maps.event.addListener(marker, 'dragend', function(){markerDragEnd(marker)})
             			google.maps.event.addListener(marker, 'click', function()
 						{
 							inEditMode() ? toggleNeighbour(marker) : showInfoWindow(marker);
 						});
 					});
+          if(editMarker){
+            map.markerHash[editMarker.panoramaId] = editMarker;
+            editMarker.setMap(map);
+            editMarker.neighbours.forEach(function(neighbour_id){
+              var neighbourMarker = map.markerHash[neighbour_id];
+              if(neighbourMarker.level == level) neighbourMarker.setIcon('images/marker_orange.png');
+            });
+          }
 				}
 			});
 		}
