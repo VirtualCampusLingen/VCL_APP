@@ -194,7 +194,7 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 
       	function initializeMap(givenArea, givenLevel)
       	{
-      		mapData = JSON.parse(getMapData(area, level).responseText).map_data;
+      		mapData = JSON.parse(getMapData(givenArea, givenLevel).responseText).map_data;
       		// set global JS Variable
           	area = givenArea;
           	level = givenLevel;
