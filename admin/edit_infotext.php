@@ -10,21 +10,21 @@ $notifications = array("success" => array(),  "error" => array(), "warning" => a
 //Update infotext
 if(isset($_POST['update_infotext_id'])){
   $p_id = mysql_real_escape_string($_POST['update_infotext_id']);
-  $p_name = mysql_real_escape_string($_POST['infotext_name']);
+  $p_title = mysql_real_escape_string($_POST['infotext_title']);
   $p_description = mysql_real_escape_string($_POST['infotext_text']);
-  $res = sql("UPDATE infotext SET name='".$p_name."', text='".$p_description."' WHERE infoTextID='".$p_id."'");
+  $res = sql("UPDATE infotext SET title='".$p_title."', text='".$p_description."' WHERE infotext_id='".$p_id."'");
   respondeToSql($res);
 }
 
 
 //List of all
-$infotext_sql = sql("SELECT * FROM infotext ORDER BY  `infotext`.`infotextID` ASC");
+$infotext_sql = sql("SELECT * FROM infotext ORDER BY  infotext_id ASC");
 $i = 0;
 while($row = mysql_fetch_assoc($infotext_sql)){
   $index = $i;
   $infotext[$index]["text"] = $row["text"];
-  $infotext[$index]["name"] = $row["name"];
-  $infotext[$index]["infoTextID"]= $row["infotextID"];
+  $infotext[$index]["title"] = $row["title"];
+  $infotext[$index]["infotext_id"]= $row["infotext_id"];
   $i++;
 }
 
@@ -32,14 +32,14 @@ while($row = mysql_fetch_assoc($infotext_sql)){
 //Delete infotext
 if (isset($_POST['delete_infotext'])){
   $del_infotext_id = mysql_real_escape_string($_POST['delete_infotext']);
-  $res = sql("DELETE FROM infotext WHERE infoTextID='".$del_infotext_id."'");
+  $res = sql("DELETE FROM infotext WHERE infotext_id='".$del_infotext_id."'");
   respondeToSql($res);
 }
 
 //New Infotext
 if(isset($_POST['new_infotext'])){
   //Neuen Infotext mit der letzten ID anlegen
-  $res = sql("INSERT INTO `infotext` (`infotextID` , `text` , `name`) VALUES ( NULL ,  '',  'new infotext')");
+  $res = sql("INSERT INTO `infotext` (`infotext_id` , `text` , `title`) VALUES ( NULL ,  '',  'new infotext')");
   respondeToSql($res);
 }
 
@@ -48,16 +48,16 @@ function respondeToSql($sql_statement){
   if(!$sql_statement){
     //internal server error
     array_push($notifications["error"], "Ein Fehler ist aufgetreten");
-    http_response_code(500);
+    // http_response_code(500);
   }else if(mysql_affected_rows() == 0){
     //no row affected
     array_push($notifications["warning"], "Keine Änderungen vorgenommen");
-    http_response_code(304);
+    // http_response_code(304);
   }
   else{  
     //sql success
     array_push($notifications["success"], "Erfolgreich");
-    http_response_code(200);
+    // http_response_code(200);
   }
 }
 
@@ -157,15 +157,14 @@ foreach ($notifications as $type => $notfiy_array) {
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="index.html">Home</a></li>
-            <li><a href="edit_admin.php">Administration</a></li>
             <li class="active"><a href="edit_infotext.php">Infotexte</a></li>
 			<li><a href="edit_picture.php">Fotos</a></li>
 			<li class="dropdown">
-        <a href="edit_admin.php" class="dropdown-toggle" data-toggle="dropdown">Übersichtskarten <b class="caret"></b></a>
+        <a href="edit_map.php" class="dropdown-toggle" data-toggle="dropdown">Übersichtskarten <b class="caret"></b></a>
          <ul class="dropdown-menu">
-          <li><a href="edit_map.php?map_id=1">Halle 1/2</a></li>
-          <li><a href="edit_map.php?map_id=2">KE</a></li>
-              </ul> 
+          <li><a href="edit_map.php?area=1">Halle 1/2</a></li>
+          <li><a href="edit_map.php?area=2">KE</a></li>
+        </ul>
       </li>
           </ul>
         </div><!--/.navbar-collapse -->
@@ -196,23 +195,23 @@ foreach ($notifications as $type => $notfiy_array) {
 
               echo("
                 <tr id='infotext_row_".$key."' class='".$class."'>
-                  <td id='infotext_name'><strong>".htmlspecialchars($value["name"])."</strong></td>
+                  <td id='infotext_title'><strong>".htmlspecialchars($value["title"])."</strong></td>
                   <td>
-                  <span class='glyphicon glyphicon-edit pointer' onclick='toggleEditRow(".$value["infoTextID"].",".$key.")'></span>
+                  <span class='glyphicon glyphicon-edit pointer' onclick='toggleEditRow(".$value["infotext_id"].",".$key.")'></span>
                   ||
-                  <span class='glyphicon glyphicon-trash pointer' onclick='deleteinfotext(".$value["infoTextID"].",".$key.")'></span>
+                  <span class='glyphicon glyphicon-trash pointer' onclick='deleteinfotext(".$value["infotext_id"].",".$key.")'></span>
                   </td>
                 </tr>
                 <tr id='infotext_row_edit_".$key."' class='edit_row_toggle'>
                   <td colspan='2'>
                   <table width='100%'>
                   <tr>
-                    <th>Name bearbeiten:</th>
+                    <th>Titel bearbeiten:</th>
                     <th colspan='2'>Text bearbeiten:</th>
                   </tr>
                   <tr>
                   <form name='update_infotext_row_".$key."' method='POST' width='100%'>
-                    <td valign='top' width='20%'><input type='hidden' name='update_infotext_id' value='".$value["infoTextID"]."'></input><input name='infotext_name' value='".htmlspecialchars($value["name"])."'></input></td>
+                    <td valign='top' width='20%'><input type='hidden' name='update_infotext_id' value='".$value["infotext_id"]."'></input><input name='infotext_title' value='".htmlspecialchars($value["title"])."'></input></td>
                     <td valign='top' width='60%'><textarea cols='50' rows='10' name='infotext_text' >".htmlspecialchars($value["text"])."</textarea></td>
                     <td valign='bottom' width='20%'><button type='submit' class='btn-success btn btn-xs'>aktualisieren</button></td>
                   </form>
@@ -229,7 +228,7 @@ foreach ($notifications as $type => $notfiy_array) {
             
           ?>
           <tr>
-            <td colspan="2"><button class="btn" onclick='newinfotext()' >new infotext add</button></td>
+            <td colspan="2"><button class="btn" onclick='newinfotext()' >Infotext hinzufügen</button></td>
           </tr>
 		</table>
 	  <hr>
