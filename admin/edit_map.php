@@ -41,21 +41,26 @@ while ($row = mysql_fetch_assoc($sql_levels))
 
 if(isset($_POST['lat']) && isset($_POST['lng']) && isset($_POST['panoramaId']))
 {
-	// TODO: mapId festlegen
 	$panoramaId = mysql_escape_string($_POST['panoramaId']);
 	$lat = mysql_escape_string($_POST['lat']);
 	$lng = mysql_escape_string($_POST['lng']);
-	sql("UPDATE panorama SET position = GeomFromText('POINT($lat $lng)') WHERE panorama_id = $panoramaId");
+  if(isset($_POST['area']) && isset($_POST['level']))
+  {
+    $area = mysql_escape_string($_POST['area']);
+    $level = mysql_escape_string($_POST['level']);
+    sql("UPDATE panorama SET position = GeomFromText('POINT($lat $lng)'), area = $area, level = $level WHERE panorama_id = $panoramaId");
+  }else sql("UPDATE panorama SET position = GeomFromText('POINT($lat $lng)') WHERE panorama_id = $panoramaId");
 }
 
-if(isset($_GET['photosOnMap']))
+if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 {
-	$mapId = mysql_escape_string($_GET['photosOnMap']);
-	$photosOnMap = sql("SELECT panorama_id, X(position) AS lat, Y(position) AS lng, description FROM panorama WHERE level = $mapId");
+	$area = mysql_escape_string($_GET['panoramasOnArea']);
+  $level = mysql_escape_string($_GET['panoramasOnLevel']);
+	$currentPanoramas = sql("SELECT panorama_id, X(position) AS lat, Y(position) AS lng, description FROM panorama WHERE area = $area AND level = $level");
 
 	$photoArray = array();
 	$i = 0;
-    while ($row = mysql_fetch_assoc($photosOnMap)) 
+    while ($row = mysql_fetch_assoc($currentPanoramas)) 
     {
 		$photoArray[$i] = array('panoramaId' => $row['panorama_id'], 
 								'lat' => $row['lat'], 
@@ -177,19 +182,22 @@ if(isset($_GET['photosOnMap']))
       <div class="clear"></div>
       
       <script>
+
         var map;
         var marker;
         var editMarker = null;
         var area = <?=$area?>;
         var level = <?=$level?>;
 
-      	function initializeMap(area, level)
+      	function initializeMap(givenArea, givenLevel)
       	{
       		mapData = JSON.parse(getMapData(area, level).responseText).map_data;
-      		
-      		$(".active-level").removeClass('btn-primary').removeClass('active-level');
+      		// set global JS Variable
+          area = givenArea;
+          level = givenLevel;
+          //toggle classes
+      		$(".active-level").removeClass('btn-primary').removeClass('active-level').addClass('btn-default');
       		$("#level" + level).removeClass('btn-default').addClass('btn-primary').addClass('active-level');
-      		
 			var mapOptions =
 			{
 				center: new google.maps.LatLng(mapData.center_lat, mapData.center_lng),
@@ -210,12 +218,12 @@ if(isset($_GET['photosOnMap']))
 
       		positionPhotos();
 
-      		google.maps.event.addListener(map, 'click', function(event)
+      		google.maps.event.addListener(overlay, 'click', function(event)
       		{
       			if(!inEditMode())
       			{
 	      			placeMarker(event.latLng);
-					fillForm(event.latLng);	
+					fillForm(event.latLng, givenArea, givenLevel);
       			}
 			});
       	}
@@ -345,8 +353,7 @@ if(isset($_GET['photosOnMap']))
 		{
 			$.ajax(
 			{
-				// TODO: Refactoring
-				data: 'photosOnMap=1',
+				data: {'panoramasOnArea': area, 'panoramasOnLevel': level},
 				type: 'GET',
 				success: function(data)
 				{
@@ -384,7 +391,7 @@ if(isset($_GET['photosOnMap']))
 			});
 		}
 
-		function fillForm(location)
+		function fillForm(location, area, level)
 		{
 			$('#lat').val(location.lat());
 			$('#lng').val(location.lng());
