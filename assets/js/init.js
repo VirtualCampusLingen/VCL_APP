@@ -10,7 +10,7 @@ function initialize() {
     pano:  "9",
     mode: 'html5',
     pov : {
-      heading : 270,
+      heading : 0,
       pitch : 0,
       zoom : 0
     }

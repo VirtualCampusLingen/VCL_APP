@@ -298,6 +298,12 @@ if(isset($_GET['photosOnMap']))
 
     function markerDragEnd(marker)
     {
+      //save new position
+      var jsonData = {'lat': marker.getPosition().lat(), 'lng': marker.getPosition().lng(), 'panoramaId': marker.panoramaId };
+      $.ajax({
+        type: 'POST',
+        data: jsonData
+      });
       //Recalculate Heading for Marker -> Neighbours && Neighbour -> Marker
       //get all neighbours for Marker
       getAllNeighboursFor(marker.panoramaId, function(data)
