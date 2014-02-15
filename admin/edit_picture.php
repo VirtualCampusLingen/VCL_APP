@@ -301,7 +301,6 @@ foreach ($notifications as $type => $notfiy_array) {
                 </tr>"
                 );
             }
-            echo("<tr><td colspan='12'>Alle weiteren Fotos anzeigen...</td></tr>");
           ?>
         </tbody>
       </table>

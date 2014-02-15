@@ -52,21 +52,21 @@ if(isset($_POST['lat']) && isset($_POST['lng']) && isset($_POST['panoramaId']))
   }else sql("UPDATE panorama SET position = GeomFromText('POINT($lat $lng)') WHERE panorama_id = $panoramaId");
 }
 
-if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
+if(isset($_GET['panoramasOnArea']))
 {
 	$area = mysql_escape_string($_GET['panoramasOnArea']);
-  	$level = mysql_escape_string($_GET['panoramasOnLevel']);
-	$currentPanoramas = sql("SELECT panorama_id, X(position) AS lat, Y(position) AS lng, name, description FROM panorama WHERE area = $area AND level = $level");
+	$allPanoramas = sql("SELECT panorama_id, X(position) AS lat, Y(position) AS lng, name, description, level FROM panorama AS p1 WHERE area = $area");
 
 	$photoArray = array();
 	$i = 0;
-    while ($row = mysql_fetch_assoc($currentPanoramas)) 
+    while ($row = mysql_fetch_assoc($allPanoramas)) 
     {
 		$photoArray[$i] = array('panoramaId' => $row['panorama_id'], 
 								'lat' => $row['lat'], 
 								'lng' => $row['lng'], 
 								'name' => $row['name'],
-								'desc' => $row['description']);
+                'desc' => $row['description'],
+                'level' => $row['level']);
 		$i++;
 	}
 
@@ -219,7 +219,7 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 				new google.maps.LatLng(mapData.overlay_sw_lat, mapData.overlay_sw_lng),
 				new google.maps.LatLng(mapData.overlay_ne_lat, mapData.overlay_ne_lng)
 			);
-			overlay = new google.maps.GroundOverlay(
+      overlay = new google.maps.GroundOverlay(
 				mapData.overlay_path,
 				overlayBounds
 			);
@@ -241,7 +241,7 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 			google.maps.event.addListener(map, 'center_changed', checkBounds);
 			google.maps.event.addListener(map, 'zoom_changed', checkZoom);
       	}
-      	
+
       	function checkBounds()
 		{
 			if(allowedBounds.contains(map.getCenter()))
@@ -251,7 +251,7 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 			}
 			map.panTo(lastValidCenter);
 		}
-		
+
 		function checkZoom()
 		{
 			if(map.getZoom() < minZoom)
@@ -259,7 +259,7 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 				map.setZoom(minZoom);
 			}
 		}
-      	
+
       	function getMapData(area, level)
       	{
       		return $.ajax(
@@ -321,18 +321,14 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 				url: 'apis/edit_map_api.php',
 				data: json,
 				type: 'POST',
-				success: function(data)
-				{
-					// TODO:
-					//console.log(test);
-				}
 			});
 			exitEditMode();
 		}
 
 		function exitEditMode()
 		{
-			editMarker = null;
+			if(editMarker.level != level) editMarker.setMap(null);
+      editMarker = null;
 			for(var key in map.markerHash)
 			{
 				map.markerHash[key].setIcon('assets/img/marker_green.png');
@@ -394,9 +390,9 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 
 		function positionPhotos()
 		{
-			$.ajax(
+      $.ajax(
 			{
-				data: {'panoramasOnArea': area, 'panoramasOnLevel': level},
+				data: {'panoramasOnArea': area},
 				type: 'GET',
 				success: function(data)
 				{
@@ -425,15 +421,37 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 							infoWindowOpen: false,
               				draggable: true,
 							panoramaId: value.panoramaId,
+              level: value.level,
 							neighbours: []
 						});
-						map.markerHash[value.panoramaId] = marker;
+            map.markerHash[marker.panoramaId] = marker;
+            //If marker is on another Level dont show it
+            if(level != value.level) marker.setVisible(false);
+            //If Level changes with an editMarker
+            if (editMarker && editMarker.panoramaId == marker.panoramaId && editMarker.level == level)
+            {
+              // Delete 'normal' Marker
+              marker.setMap(null);
+              // Set Edit Marker Icon to blue
+              editMarker.setIcon('assets/img/marker_blue.png');
+            }else if(editMarker && editMarker.panoramaId == marker.panoramaId)
+            {
+              editMarker.setIcon('assets/img/marker_blue_transparent.png');
+            }
 						google.maps.event.addListener(marker, 'dragend', function(){markerDragEnd(marker)})
             			google.maps.event.addListener(marker, 'click', function()
 						{
 							inEditMode() ? toggleNeighbour(marker) : showInfoWindow(marker);
 						});
 					});
+          if(editMarker){
+            map.markerHash[editMarker.panoramaId] = editMarker;
+            editMarker.setMap(map);
+            editMarker.neighbours.forEach(function(neighbour_id){
+              var neighbourMarker = map.markerHash[neighbour_id];
+              if(neighbourMarker.level == level) neighbourMarker.setIcon('assets/img/marker_orange.png');
+            });
+          }
 				}
 			});
 		}
