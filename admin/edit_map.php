@@ -183,6 +183,7 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
       <div class="clear"></div>
       
       <script>
+
         var map;
         var marker;
         var editMarker = null;
@@ -349,8 +350,10 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 			}
 			if(!isOpen)
 			{
+				$("#infotext_modal").remove();
 				marker.infoWindow.open(map, marker);
 				marker.infoWindowOpen = true;
+				$("body").appendPartial('infotext_modal.php?id=' + marker.panoramaId);
 			}
 		}
 
@@ -402,9 +405,12 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 					{
 						var content = "<h4>" + value.name + "</h4>";
 						content += "<p>" + value.desc + "</p>"
-								+ "<button type='button' class='btn btn-info btn-xs' onclick='enterEditMode("
+								+ "<button type='button' class='btn btn-info btn-xs info_button' onclick='enterEditMode("
 								+ value.panoramaId
-								+ ")'>Bearbeiten</button>";
+								+ ")'>Nachbarn bearbeiten</button><br/>";
+						content += "<button type='button' class='btn btn-info btn-xs info_button' onclick='infotext_modal("
+								+ value.panoramaId
+								+ ")'>Infotext bearbeiten</button>";
 
 						var infoWindow = new google.maps.InfoWindow(
 						{
@@ -467,7 +473,7 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
            });
          }
        });
-		}
+	}
 
     function getAllNeighboursFor(panoramaId, successCallback){
       $.ajax(
@@ -477,6 +483,10 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
         data: 'id=' + panoramaId,
         success: function(data){ successCallback(data) }
       });
+    }
+    
+	function infotext_modal(id){
+      $('#infotext_modal').modal('show');
     }
     
 	function changeArea(area)

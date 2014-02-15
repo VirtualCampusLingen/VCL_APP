@@ -44,3 +44,8 @@
 .clear {
 	clear: both;
 }
+
+.info_button {
+	width: 150px;
+	margin: 2px auto;
+}
