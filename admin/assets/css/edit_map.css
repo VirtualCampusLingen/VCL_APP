@@ -28,6 +28,7 @@
 
 #level-selector {
 	margin: 10px;
+	position: absolute;
 }
 
 #elevator {

@@ -112,22 +112,12 @@ function getPanoJson(panoID){
 
 function addInfoIcon(infoTextObj){
   var id = Date.now()
-  $("#info").appendPartial('info_modal', function(){
+  $("#info").appendPartial('info_modal.html', function(){
     $("#temp").attr("id", id);
     $("button[data-target='#temp']").attr("data-target", "#"+id).text(infoTextObj.infotext_title);
     $("#"+id+" .modal-title").text(infoTextObj.infotext_title);
     $("#"+id+" .modal-body").html(infoTextObj.infotext_text);
   })
 }
-
-jQuery.fn.extend({
-  appendPartial: function(name, callback){
-    var element = this
-    $.get("_"+name+".html", function(data){
-      $(element).append(data)
-      if(typeof callback != 'undefined') callback();
-    })
-  }
-});
 
 google.maps.event.addDomListener(window, 'load', initialize);

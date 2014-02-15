@@ -183,7 +183,6 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
       <div class="clear"></div>
       
       <script>
-
         var map;
         var marker;
         var editMarker = null;
@@ -195,6 +194,7 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 
       	function initializeMap(givenArea, givenLevel)
       	{
+      		$("body").appendPartial('selectpano_modal.php');
       		mapData = JSON.parse(getMapData(givenArea, givenLevel).responseText).map_data;
       		// set global JS Variable
           	area = givenArea;
@@ -236,6 +236,7 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 					fillForm(event.latLng, givenArea, givenLevel);
       			}
 			});
+			google.maps.event.addListener(marker, 'click', selectPanorama);
 			google.maps.event.addListener(map, 'center_changed', checkBounds);
 			google.maps.event.addListener(map, 'zoom_changed', checkZoom);
       	}
@@ -483,6 +484,10 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 		window.location.href = "edit_map.php?area=" + area;
 		window.load;
 	}
+		function selectPanorama()
+		{
+			$("#selectpano_modal").modal();
+		}
 
       	google.maps.event.addDomListener(window, 'load', function()
 		{
@@ -491,30 +496,8 @@ if(isset($_GET['panoramasOnArea']) && isset($_GET['panoramasOnLevel']))
 		);
 
       </script>
-
-      <form method="POST">
-      	  <?php
-      	  	$allPhotos = sql("SELECT * FROM panorama");
-            echo("<select name='panoramaId'>");
-            $i = 0;
-            while($row = mysql_fetch_assoc($allPhotos)){
-              $photo_hsh[$i]["panoramaId"] = $row["panorama_id"];
-              $photo_hsh[$i]["photo_name"] = $row["name"];
-
-              echo("<option value='" .$photo_hsh[$i]["panoramaId"]. "'>" .$photo_hsh[$i]["photo_name"]. "</option>");
-              $i++;
-            }
-            echo("</select>");
-          ?>
-          
-      	 <input type="hidden" name="lat" id="lat">
-		 <input type="hidden" name="lng" id="lng">
-		 <input type="hidden" name="area" id="area">
-		 <input type="hidden" name="level" id="level">
-		 <button type="submit" class="btn btn-success">Speichern</button>
-      </form>
-      
-      <footer>
+           
+      <footer class="text-right">
           <p>&copy; VCL 2013</p>
       </footer>
     </div> <!-- /container -->        

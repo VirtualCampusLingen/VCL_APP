@@ -11,6 +11,7 @@
     <script src="admin/assets/js/vendor/jquery-ui-1.10.3.custom.min.js"></script>
     <script src="admin/assets/js/vendor/bootstrap.min.js"></script>
     <script src="assets/js/init.js"></script>
+    <script src="admin/assets/js/main.js"></script>
    </head>
   <body>
     <div id="map-canvas">
@@ -18,7 +19,7 @@
     </div>
   </body>
 <script type="text/javascript">
-  $("body").appendPartial('start_modal', function(){
+  $("body").appendPartial('start_modal.html', function(){
     $("#startUpModal").modal();
     $("#startUpModal").on('hidden.bs.modal', function () {
       $("#info").show();
