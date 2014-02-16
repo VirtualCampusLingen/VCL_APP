@@ -19,6 +19,18 @@ function initialize() {
   var streetViewDiv = document.getElementById('map-canvas');
   streetViewDiv.style.fontSize = "15px";
   streetView = new google.maps.StreetViewPanorama(streetViewDiv, streetViewOptions);
+  
+  var minimapDiv = document.getElementById('minimap-canvas');
+  var minimapOptions = 
+  {
+  	disableDefaultUI: true,
+  	streetViewControl: true,
+  	center: new google.maps.LatLng(52.51947, 7.3226),
+  	zoom: 18
+  };
+  minimap = new google.maps.Map(minimapDiv, minimapOptions);
+  minimap.setStreetView(streetView);
+  minimap.bindTo('position', streetView, 'center');
 
   google.maps.event.addListener(streetView, "links_changed", createCustomLink);
   google.maps.event.addListener(streetView, "pano_changed", preLoadImg);
@@ -61,7 +73,8 @@ function getCustomPanorama(panoID) {
     copyright: 'Imagery (c) VCL',
     location: {
       pano: panoJson.id,
-      description: panoJson.description
+      description: panoJson.description,
+      latLng: new google.maps.LatLng(52.51947, 7.3226)
     },
     tiles: {
         tileSize: new google.maps.Size(2048, 1024),
