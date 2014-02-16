@@ -25,8 +25,7 @@ function initialize() {
   {
   	disableDefaultUI: true,
   	streetViewControl: true,
-  	center: new google.maps.LatLng(52.51947, 7.3226),
-  	zoom: 18
+  	zoom: 17
   };
   minimap = new google.maps.Map(minimapDiv, minimapOptions);
   minimap.setStreetView(streetView);
@@ -34,6 +33,12 @@ function initialize() {
 
   google.maps.event.addListener(streetView, "links_changed", createCustomLink);
   google.maps.event.addListener(streetView, "pano_changed", preLoadImg);
+  google.maps.event.addListener(streetView, "position_changed", resetMinimap);
+}
+
+function resetMinimap()
+{
+	minimap.setCenter(streetView.getPosition());
 }
 
 function preLoadImg(){
