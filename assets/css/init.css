@@ -39,3 +39,12 @@ body.modal-open {
 	border-top-left-radius: 5px;
 	cursor: pointer;
 }
+
+.poi-preview {
+	float: left;
+	margin-right: 10px;
+}
+
+.clear {
+	clear: both;
+}
