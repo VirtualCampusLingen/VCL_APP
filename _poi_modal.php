@@ -23,16 +23,17 @@ error_reporting(null);
       	<ul class="media-list" style="height: 300px; overflow: auto">
       	<!--<div class="list-group" style="height: 300px; overflow: auto">-->
 	        <?php
-	        	$sql_poi = sql("SELECT name, description, panorama FROM poi ORDER BY name ASC");
+	        	$sql_poi = sql("SELECT name, description, panorama, preview_image_path FROM poi ORDER BY name ASC");
 				$i = 0;
 				while($row = mysql_fetch_assoc($sql_poi)){
 					$poi_name = $row['name'];
 					$poi_description = $row['description'];
 					$poi_panorama = $row['panorama'];
+					$poi_preview_image = $row['preview_image_path'];
 					
 					echo '<li class="media">';
 					echo '<a class="pull-left" href="javascript:void(0)" onclick="initialize(' . $poi_panorama . ')" data-dismiss="modal">';
-					echo '<img class="media-object" src="/admin/assets/img/poi_example.png" alt="' . $poi_name . '">';
+					echo '<img class="media-object" src="' . $poi_preview_image . '" alt="' . $poi_name . '">';
 					echo '</a>';
 					echo '<div class="media-body">';
 					echo '<h4 class="media-heading">' . $poi_name . '</h4>';
