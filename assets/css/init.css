@@ -37,4 +37,5 @@ body.modal-open {
 	-webkit-border-top-left-radius: 5px; 
 	-moz-border-radius-topleft: 5px; 
 	border-top-left-radius: 5px;
+	cursor: pointer;
 }
