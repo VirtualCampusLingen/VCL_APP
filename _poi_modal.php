@@ -20,8 +20,8 @@ error_reporting(null);
         <h4 class="modal-title">Wo möchtest du hin?</h4>
       </div>
       <div class="modal-body">
-      	<!--<ul class="media-list" style="height: 300px; overflow: auto">-->
-      	<div class="list-group" style="height: 300px; overflow: auto">
+      	<ul class="media-list" style="height: 300px; overflow: auto">
+      	<!--<div class="list-group" style="height: 300px; overflow: auto">-->
 	        <?php
 	        	$sql_poi = sql("SELECT name, description, panorama FROM poi ORDER BY name ASC");
 				$i = 0;
@@ -30,25 +30,27 @@ error_reporting(null);
 					$poi_description = $row['description'];
 					$poi_panorama = $row['panorama'];
 					
-					/*
 					echo '<li class="media">';
-					echo '<a class="pull-left" href="#"><img class="media-object" src="/admin/assets/img/poi_example.png" alt="' . $poi_name . '"></a>';
+					echo '<a class="pull-left" href="javascript:void(0)" onclick="initialize(' . $poi_panorama . ')" data-dismiss="modal">';
+					echo '<img class="media-object" src="/admin/assets/img/poi_example.png" alt="' . $poi_name . '">';
+					echo '</a>';
 					echo '<div class="media-body">';
 					echo '<h4 class="media-heading">' . $poi_name . '</h4>';
 					echo '<p>' . $poi_description . '</p>';
 					echo '</li>';
-					 */	
-					
+
+					/*
 					echo '<a href="#" class="list-group-item">';
 					echo '<h4 class="list-group-item-heading">' . $poi_name . '</h4>';
 					echo '<p class="list-group-item-text">' . $poi_description . '</p>';
 					echo '</a>';
+					 */
 					
 					$i++;
 				}
 	        ?>
-	    </div>
-        <!--</ul>-->
+	    <!--</div>-->
+        </ul>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>

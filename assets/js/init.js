@@ -1,13 +1,15 @@
 
 var initPosPanoID, streetView;
+var initPanoId = 9;
 
-function initialize() {
+function initialize(panoramaId) {
+  panoramaId = String(panoramaId);
   var streetViewOptions = {
 
     zoom: 1,
     panoProvider:  getCustomPanorama,
     // TODO: set to first panorama in DB
-    pano:  "9",
+    pano:  panoramaId,
     mode: 'html5',
     pov : {
       heading : 0,
@@ -148,4 +150,6 @@ function addInfoIcon(infoTextObj){
   })
 }
 
-google.maps.event.addDomListener(window, 'load', initialize);
+google.maps.event.addDomListener(window, 'load', function(){
+	initialize(initPanoId);
+});
