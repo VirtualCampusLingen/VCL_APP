@@ -41,7 +41,9 @@
   display: none;
 }
 
-
+.hiddenRow {
+  display: none;
+}
 
 
 
