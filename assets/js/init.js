@@ -30,15 +30,25 @@ function initialize() {
   minimap = new google.maps.Map(minimapDiv, minimapOptions);
   minimap.setStreetView(streetView);
   minimap.bindTo('position', streetView, 'center');
+  
+  $("body").appendPartial('poi_modal.php');
 
   google.maps.event.addListener(streetView, "links_changed", createCustomLink);
   google.maps.event.addListener(streetView, "pano_changed", preLoadImg);
   google.maps.event.addListener(streetView, "position_changed", resetMinimap);
+  $("#minimap-overlay").click(function(){
+  	showPOI();
+  });
 }
 
 function resetMinimap()
 {
 	minimap.setCenter(streetView.getPosition());
+}
+
+function showPOI()
+{
+	$("#poi_modal").modal();
 }
 
 function preLoadImg(){
