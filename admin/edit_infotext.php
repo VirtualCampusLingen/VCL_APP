@@ -9,6 +9,7 @@ $notifications = array("success" => array(),  "error" => array(), "warning" => a
 
 //Update infotext
 if(isset($_POST['update_infotext_id'])){
+
   $p_id = mysql_real_escape_string($_POST['update_infotext_id']);
   $p_title = mysql_real_escape_string($_POST['infotext_title']);
   $p_description = mysql_real_escape_string($_POST['infotext_text']);
@@ -98,18 +99,19 @@ foreach ($notifications as $type => $notfiy_array) {
 
         <script src="assets/js/vendor/jquery-1.10.1.min.js"></script>
         <script src="assets/js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
-		
-		<script>
-		    
+    
+    <script>
+        
         function toggleEditRow(info_id,key){
           if($('#infotext_row_edit_'+key).is(':visible')){
-            $('#infotext_row_edit_'+key).toggle();
+            $("#infotext_row_"+key).css('display','table-row');
+            $("#infotext_row_edit_"+key).css('display','none');
           }
           else{
-            $('.edit_row_toggle').css('display','none');
-            $('#infotext_row_edit_'+key).toggle();
+            $("#infotext_row_edit_"+key).css('display','table-row');
+            $("#infotext_row_"+key).css('display','none');
           }
-			  };
+        };
 
         function deleteinfotext(info_id,key){
           $.ajax({
@@ -138,7 +140,7 @@ foreach ($notifications as $type => $notfiy_array) {
             }
           });
         };
-		</script>
+    </script>
     </head>
     <body>
         <!--[if lt IE 7]>
@@ -158,8 +160,8 @@ foreach ($notifications as $type => $notfiy_array) {
           <ul class="nav navbar-nav">
             <li><a href="index.html">Home</a></li>
             <li class="active"><a href="edit_infotext.php">Infotexte</a></li>
-			<li><a href="edit_picture.php">Fotos</a></li>
-			<li class="dropdown">
+      <li><a href="edit_picture.php">Fotos</a></li>
+      <li class="dropdown">
         <a href="edit_map.php" class="dropdown-toggle" data-toggle="dropdown">Übersichtskarten <b class="caret"></b></a>
          <ul class="dropdown-menu">
           <li><a href="edit_map.php?area=1">Halle 1/2</a></li>
@@ -174,49 +176,55 @@ foreach ($notifications as $type => $notfiy_array) {
     <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron" style="padding: 10px 0px 10px 0px;">
       <div class="container" >
-		<h2>Infotexte verwalten</h2>
+    <h2>Infotexte verwalten</h2>
       </div>
     </div>
     <div class="container">
-		<table width="100%" cellspacing="0" cellpadding="5">
+    <table width="100%" cellspacing="0" cellpadding="5" class="table table-striped table-hover">
+      <thead>
         <tr>
-          <th width="80%" >Name</th>
-          <th width="20%" >Edit</th>
+          <th width="30%" >Name</th>
+          <th width="50%"></th>
+          <th width="20%" ></th>
         </tr>
-		    <?php
+      </thead>
+      <tbody>
+        <?php
           if(isset($infotext) && $infotext != null ){
             foreach($infotext as $key => $value){
-
-              if($key%2==0){
-                $class = 'infotext_row_gray';
-              } else{
-                $class = 'infotext_row_white';
+              
+              $new_infotext1 = "";
+              $new_infotext2 = "";
+              
+              if($value["title"] == 'new infotext'){
+                $new_infotext1 = "style='display:none;' ";
+                $new_infotext2 = "style='display:table-row;' ";
+                $value["title"] = "";
               }
-
+              $text_kurz = substr($value["text"],0,50);
               echo("
-                <tr id='infotext_row_".$key."' class='".$class."'>
-                  <td id='infotext_title'><strong>".htmlspecialchars($value["title"])."</strong></td>
+                <tr id='infotext_row_".$key."' ".$new_infotext1.">
+                  <td><strong>".htmlspecialchars($value["title"])."</strong></td>
+                  <td>".$text_kurz."</td>
                   <td>
-                  <span class='glyphicon glyphicon-edit pointer' onclick='toggleEditRow(".$value["infotext_id"].",".$key.")'></span>
-                  ||
-                  <span class='glyphicon glyphicon-trash pointer' onclick='deleteinfotext(".$value["infotext_id"].",".$key.")'></span>
+                  <button class='btn btn-info btn-xs' onclick='toggleEditRow(".$value["infotext_id"].",".$key.")'>Bearbeiten</button>
+                  <button class='btn btn-danger btn-xs' onclick='deleteinfotext(".$value["infotext_id"].",".$key.")'>Löschen</button>
                   </td>
-                </tr>
-                <tr id='infotext_row_edit_".$key."' class='edit_row_toggle'>
-                  <td colspan='2'>
-                  <table width='100%'>
-                  <tr>
-                    <th>Titel bearbeiten:</th>
-                    <th colspan='2'>Text bearbeiten:</th>
-                  </tr>
-                  <tr>
-                  <form name='update_infotext_row_".$key."' method='POST' width='100%'>
-                    <td valign='top' width='20%'><input type='hidden' name='update_infotext_id' value='".$value["infotext_id"]."'></input><input name='infotext_title' value='".htmlspecialchars($value["title"])."'></input></td>
-                    <td valign='top' width='60%'><textarea cols='50' rows='10' name='infotext_text' >".htmlspecialchars($value["text"])."</textarea></td>
-                    <td valign='bottom' width='20%'><button type='submit' class='btn-success btn btn-xs'>aktualisieren</button></td>
-                  </form>
-                  </tr>
-                  </table>
+                </tr>");
+              echo ("
+                <tr id='infotext_row_edit_".$key."' class='edit_row_toggle' ".$new_infotext2.">
+                  <td>
+                    <form name='update_infotext_row_".$key."' method='POST' width='100%'>
+                      <input type='hidden' name='update_infotext_id' value='".$value["infotext_id"]."'/>
+                      <input name='infotext_title' value='".htmlspecialchars($value["title"])."'/>
+                  </td>
+                  <td>
+                      <textarea cols='90' rows='5' name='infotext_text' >".htmlspecialchars($value["text"])."</textarea>
+                  </td>
+                  <td>
+                      <button type='submit' class='btn btn-success btn-xs' >Speichern</button>
+                      <button class='btn btn-info btn-xs' onclick='toggleEditRow(".$value["infotext_id"].",".$key.")'>Beenden</button>
+                    </form>
                   </td>
                 </tr>");
             }
@@ -227,11 +235,12 @@ foreach ($notifications as $type => $notfiy_array) {
           }
             
           ?>
-          <tr>
-            <td colspan="2"><button class="btn" onclick='newinfotext()' >Infotext hinzufügen</button></td>
-          </tr>
-		</table>
-	  <hr>
+                </tbody>
+    </table>
+    <div>
+      <button class="btn btn btn-success" onclick='newinfotext()' >Infotext hinzufügen</button>
+    </div>
+    <hr>
 
       <footer>
         <p>&copy; VCL 2013</p>
