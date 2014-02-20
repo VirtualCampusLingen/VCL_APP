@@ -22,7 +22,7 @@ error_reporting(null);
       <div class="modal-body">
       	<div class="list-group" style="height: 300px; overflow: auto">
 	        <?php
-	        	$sql_poi = sql("SELECT name, description, panorama, preview_image_path FROM poi ORDER BY name ASC");
+	        	$sql_poi = sql("SELECT name, description, panorama FROM poi ORDER BY name ASC");
 				$i = 0;
 				while($row = mysql_fetch_assoc($sql_poi)){
 					$poi_name = $row['name'];
@@ -36,7 +36,7 @@ error_reporting(null);
 					echo '<p class="list-group-item-text">' . $poi_description . '</p>';
 					echo '<div class="clear"></div>';
 					echo '</a>';
-					
+
 					$i++;
 				}
 	        ?>
