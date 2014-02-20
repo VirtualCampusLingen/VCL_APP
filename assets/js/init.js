@@ -102,7 +102,7 @@ function getPanoJson(panoID){
     var xhr = new ActiveXObject("Microsoft.XMLHTTP");
   }
 
-  xhr.open("GET", "/admin/apis/panorama_data_api.php?id="+panoID, false);
+  xhr.open("GET", "admin/apis/panorama_data_api.php?id="+panoID, false);
   xhr.send();
   var response = xhr.responseText;
   var json = JSON.parse(response);

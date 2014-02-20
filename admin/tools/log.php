@@ -9,8 +9,7 @@ fputs($logdatei,
     ", " . $_SERVER['REQUEST_METHOD'] .
     ", " . $_SERVER['PHP_SELF'] .
     ", " . $_SERVER['HTTP_USER_AGENT'] .
-    ", " . $_SERVER['HTTP_REFERER'] .
-    ", " . http_response_code() ."\n"
+    ", " . $_SERVER['HTTP_REFERER'] ."\n"
     );
 fclose($logdatei);
 
