@@ -1,3 +1,12 @@
+$(window).load(function(){
+  $(document).on('keydown', function(e){
+    if(e.keyCode == 116){
+      e.preventDefault();
+      location.reload();
+    }
+  });
+});
+
 function setFlash(type, msg){
   switch (type){
     case 'success':

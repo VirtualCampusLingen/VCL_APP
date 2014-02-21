@@ -6,6 +6,7 @@ $tools_dir = $DOCUMENT_ROOT . "/tools/";
 include_once($tools_dir . "connect.php");
 include_once($tools_dir . "sql.php");
 include_once($tools_dir . "log.php");
+include_once($tools_dir . "header.php");
 $dblk = connect();
 
 
@@ -30,11 +31,8 @@ if(isset($_POST['update_panorama'])){
   $description = mysql_real_escape_string($_POST['photo_description']);
 
   if($panorama_path = uploadPhoto()) $res = sql("UPDATE panorama SET panorama_path = '$panorama_path' WHERE panorama_id = $panorama_id");
-  else if(!empty($name) || !empty($description))
-  {
-    $res = sql("UPDATE panorama SET name = '$name', description = '$description' WHERE panorama_id = $panorama_id");
-    respondeToSql($res);
-  }
+  else if(!empty($name) || !empty($description)) $res = sql("UPDATE panorama SET name = '$name', description = '$description' WHERE panorama_id = $panorama_id");
+  respondeToSql($res);
 }
 
 //Delete Panorama

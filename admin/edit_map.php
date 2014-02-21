@@ -5,6 +5,7 @@ $tools_dir = $DOCUMENT_ROOT . "/tools/";
 include_once($tools_dir . "connect.php");
 include_once($tools_dir . "sql.php");
 include_once($tools_dir . "log.php");
+include_once($tools_dir . "header.php");
 $dblk = connect();
 
 $error = 0;
