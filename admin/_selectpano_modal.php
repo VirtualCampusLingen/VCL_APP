@@ -41,7 +41,6 @@ error_reporting(null);
 					echo '<h4 class="list-group-item-heading">' . $panoramas[$i]["name"] . '</h4>';
 					echo '<p class="list-group-item-text">' . $panoramas[$i]["description"] . '</p>';
 					echo '</a>';
-					
 					$i++;
 				}
 	      	?>
