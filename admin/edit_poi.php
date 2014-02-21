@@ -88,25 +88,37 @@ foreach ($notifications as $type => $notfiy_array) {
     }
   };
 
-  function deleteinfotext(poi_id, key){
-    $.ajax({
-      type: "POST",
-      data: {'delete_poi': poi_id},
-      error: function(xhr, status, error) {
-        //setFlash('error', 'Infotext konnte nicht gelöscht werden')
-      },
-      success: function(data, status, xhr) {
-        //setFlash('success', 'Infotext wurde erfolgreich gelöscht')
-        $("#poi_row_"+key).remove()
+  function deletePoi(poi_id, key){
+    $.confirm({
+      text: "Sind sie sicher, dass Sie dieses Markierung löschen wollen?",
+      title: "Löschen bestätigen",
+      confirmButton: "Ja, löschen",
+      cancelButton: "Nein, abbrechen",
+      confirm: function(button) {
+        $.ajax({
+          type: "POST",
+          data: {'delete_poi': poi_id},
+          error: function(xhr, status, error) {
+            //setFlash('error', 'POI konnte nicht gelöscht werden')
+          },
+          success: function(data, status, xhr) {
+            //setFlash('success', 'POI wurde erfolgreich gelöscht')
+            $("#poi_row_"+key).remove()
+          }
+        });
       }
     });
   };
+
+  $("window").load(function(){
+    if($("#pano_select_new :selected").is(":empty")) $("#newPoiSubmit").prop("disabled", true);
+  });
 </script>
 
  <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron" style="padding: 10px 0px 10px 0px;">
       <div class="container" >
-    <h2>Interessante Punkte verwalten</h2>
+    <h2>Interessante Orte verwalten</h2>
       </div>
     </div>
     <div class="container">
@@ -143,7 +155,7 @@ foreach ($notifications as $type => $notfiy_array) {
                   <td>".$respPanoName."</td>
                   <td>
                   <button class='btn btn-info btn-xs' onclick='toggleEditRow(".$value["poi_id"].",".$key.")'>Bearbeiten</button>
-                  <button class='btn btn-danger btn-xs' onclick='deleteinfotext(".$value["poi_id"].",".$key.")'>Löschen</button>
+                  <button class='btn btn-danger btn-xs' onclick='deletePoi(".$value["poi_id"].",".$key.")'>Löschen</button>
                   </td>
                 </tr>");
               echo ("
@@ -168,7 +180,8 @@ foreach ($notifications as $type => $notfiy_array) {
                   </td>
                 </tr>");
             }
-            echo("
+          }
+          echo("
               <tr>
                 <form method='POST' width='100%'>
                 <td><input type='hidden' name='new_poi'/>
@@ -179,11 +192,10 @@ foreach ($notifications as $type => $notfiy_array) {
                     ".$panoSelectOptions."
                   </select>
                 </td>
-                <td><button type='submit' class='btn btn-xs btn-success'>Interessanten Punkt hinzufügen</button></td>
+                <td><button id='newPoiSubmit' type='submit' class='btn btn-xs btn-success'>Interessanten Punkt hinzufügen</button></td>
                 </form>
               </tr>
             ");
-          }
           ?>
         </tbody>
     </table>

@@ -83,7 +83,7 @@ function uploadPhoto()
   }else
   {
     // array of valid extensions
-    $validExtensions = array('.jpg', '.jpeg', '.gif', '.png');
+    $validExtensions = array('.jpg', '.jpeg', '.gif', '.png', '.JPG', '.JPEG', '.GIF', '.PNG');
       // get extension of the uploaded file
     $fileExtension = strrchr($_FILES['fileToUpload']['name'], ".");
     // check if file Extension is on the list of allowed ones
@@ -94,8 +94,8 @@ function uploadPhoto()
       $panorama_path = 'assets/img_360/' . $newName;
       $doubledPath = sql("SELECT * FROM panorama WHERE panorama_path = '$panorama_path'");
 
-      if(mysql_num_rows($doubledPath) > 0) array_push($notifications["error"], "Es wurde bereits in Panorama mit diesem Dateinamen hochgeladen");
-      else if(move_uploaded_file($_FILES['fileToUpload']['tmp_name'], $panorama_path)) 
+      if(mysql_num_rows($doubledPath) > 0) array_push($notifications["error"], "Es wurde bereits ein Panorama mit diesem Dateinamen hochgeladen");
+      else if(move_uploaded_file($_FILES['fileToUpload']['tmp_name'], $panorama_path))
       {
         chmod($panorama_path, 0644);
         return $panorama_path;
@@ -149,15 +149,23 @@ foreach ($notifications as $type => $notfiy_array) {
         $("#photo_row_"+photo_id).toggle()
       };
       function deletePhoto(photo_id){
-        $.ajax({
-          type: "POST",
-          data: {'delete_panorama': photo_id},
-          error: function(xhr, status, error) {
-            setFlash('error', 'Foto konnte nicht gelöscht werden')
-          },
-          success: function(data, status, xhr) {
-            setFlash('success', 'Foto wurde erfolgreich gelöscht')
-            $("#photo_row_"+photo_id).remove()
+        $.confirm({
+          text: "Sind sie sicher, dass Sie dieses Foto löschen wollen?",
+          title: "Löschen bestätigen",
+          confirmButton: "Ja, löschen",
+          cancelButton: "Nein, abbrechen",
+          confirm: function(button) {
+            $.ajax({
+              type: "POST",
+              data: {'delete_panorama': photo_id},
+              error: function(xhr, status, error) {
+                setFlash('error', 'Foto konnte nicht gelöscht werden')
+              },
+              success: function(data, status, xhr) {
+                setFlash('success', 'Foto wurde erfolgreich gelöscht')
+                $("#photo_row_"+photo_id).remove()
+              }
+            });
           }
         });
       };
@@ -251,24 +259,17 @@ foreach ($notifications as $type => $notfiy_array) {
         </tbody>
       </table>
       </section>
-      
+
       <hr>
       <footer>
         <p>&copy; VCL 2013</p>
       </footer>
-    </div> <!-- /container -->     
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="assets/js/vendor/jquery-1.10.1.min.js"><\/script>')</script>
-
-        <script src="assets/js/vendor/bootstrap.min.js"></script>
-
-        <script src="assets/js/main.js"></script>
-
-        <script>
-            var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
-            (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-            g.src='//www.google-analytics.com/ga.js';
-            s.parentNode.insertBefore(g,s)}(document,'script'));
-        </script>
+    </div> <!-- /container -->
+	  <script>
+      var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+      (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+      g.src='//www.google-analytics.com/ga.js';
+      s.parentNode.insertBefore(g,s)}(document,'script'));
+    </script>
     </body>
 </html>

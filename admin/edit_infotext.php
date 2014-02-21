@@ -86,16 +86,24 @@ foreach ($notifications as $type => $notfiy_array) {
   };
 
   function deleteinfotext(info_id,key){
-    $.ajax({
-      type: "POST",
-      data: {'delete_infotext': info_id},
-      error: function(xhr, status, error) {
-        //setFlash('error', 'Infotext konnte nicht gelöscht werden')
-      },
-      success: function(data, status, xhr) {
-        //setFlash('success', 'Infotext wurde erfolgreich gelöscht')
-        $("#infotext_row_"+key).remove()
-      }
+    $.confirm({
+    text: "Sind sie sicher, dass Sie diesen Informationstext löschen wollen?",
+    title: "Löschen bestätigen",
+    confirmButton: "Ja, löschen",
+    cancelButton: "Nein, abbrechen",
+    confirm: function(button) {
+      $.ajax({
+        type: "POST",
+        data: {'delete_infotext': info_id},
+        error: function(xhr, status, error) {
+          //setFlash('error', 'Infotext konnte nicht gelöscht werden')
+        },
+        success: function(data, status, xhr) {
+          //setFlash('success', 'Infotext wurde erfolgreich gelöscht')
+          $("#infotext_row_"+key).remove()
+        }
+      });
+    }
     });
   };
 
@@ -148,7 +156,7 @@ foreach ($notifications as $type => $notfiy_array) {
                   <td>".$text_kurz."</td>
                   <td>
                   <button class='btn btn-info btn-xs' onclick='toggleEditRow(".$value["infotext_id"].",".$key.")'>Bearbeiten</button>
-                  <button class='btn btn-danger btn-xs' onclick='deleteinfotext(".$value["infotext_id"].",".$key.")'>Löschen</button>
+                  <button class='btn btn-danger btn-xs confirm_delete' onclick='deleteinfotext(".$value["infotext_id"].",".$key.")'>Löschen</button>
                   </td>
                 </tr>");
               echo ("
