@@ -48,3 +48,12 @@ body.modal-open {
 .clear {
 	clear: both;
 }
+
+#minimap-hint-arrow {
+  display: none;
+  position: absolute;
+  bottom: 170px;
+  right: 0;
+  z-index: 1055;
+}
+
