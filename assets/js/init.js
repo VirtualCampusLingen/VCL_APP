@@ -1,13 +1,15 @@
 
 var initPosPanoID, streetView;
+var initPanoId = 9;
 
-function initialize() {
+function initialize(panoramaId) {
+  panoramaId = String(panoramaId);
   var streetViewOptions = {
 
     zoom: 1,
     panoProvider:  getCustomPanorama,
     // TODO: set to first panorama in DB
-    pano:  "9",
+    pano:  panoramaId,
     mode: 'html5',
     pov : {
       heading : 0,
@@ -19,9 +21,36 @@ function initialize() {
   var streetViewDiv = document.getElementById('map-canvas');
   streetViewDiv.style.fontSize = "15px";
   streetView = new google.maps.StreetViewPanorama(streetViewDiv, streetViewOptions);
+  
+  var minimapDiv = document.getElementById('minimap-canvas');
+  var minimapOptions = 
+  {
+  	disableDefaultUI: true,
+  	streetViewControl: true,
+  	zoom: 17
+  };
+  minimap = new google.maps.Map(minimapDiv, minimapOptions);
+  minimap.setStreetView(streetView);
+  minimap.bindTo('position', streetView, 'center');
+  
+  $("body").appendPartial('poi_modal.php');
 
   google.maps.event.addListener(streetView, "links_changed", createCustomLink);
   google.maps.event.addListener(streetView, "pano_changed", preLoadImg);
+  google.maps.event.addListener(streetView, "position_changed", resetMinimap);
+  $("#minimap-overlay").click(function(){
+  	showPOI();
+  });
+}
+
+function resetMinimap()
+{
+	minimap.setCenter(streetView.getPosition());
+}
+
+function showPOI()
+{
+	$("#poi_modal").modal();
 }
 
 function preLoadImg(){
@@ -61,7 +90,8 @@ function getCustomPanorama(panoID) {
     copyright: 'Imagery (c) VCL',
     location: {
       pano: panoJson.id,
-      description: panoJson.description
+      description: panoJson.description,
+      latLng: new google.maps.LatLng(panoJson.position_lat, panoJson.position_lng)
     },
     tiles: {
         tileSize: new google.maps.Size(2048, 1024),
@@ -117,7 +147,13 @@ function addInfoIcon(infoTextObj){
     $("button[data-target='#temp']").attr("data-target", "#"+id).text(infoTextObj.infotext_title);
     $("#"+id+" .modal-title").text(infoTextObj.infotext_title);
     $("#"+id+" .modal-body").html(infoTextObj.infotext_text);
+    $("#"+id).on('shown.bs.modal', function () {
+      var parent_row = $("#"+id).parent(".info_row");
+      $(".modal-backdrop").appendTo(parent_row);
+    });
   })
 }
 
-google.maps.event.addDomListener(window, 'load', initialize);
+google.maps.event.addDomListener(window, 'load', function(){
+	initialize(initPanoId);
+});

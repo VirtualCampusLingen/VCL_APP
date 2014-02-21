@@ -1,4 +1,4 @@
-<div class="modal fade" id="startUpModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="text-center modal fade" id="startUpModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -6,11 +6,21 @@
         <h4 class="modal-title" id="myModalLabel">Wilkommen im Projekt Virtueller Campus Lingen</h4>
       </div>
       <div class="modal-body">
-        <p>TEST</p>
+        <div>
+          <img src="assets/img/campus_lingen.jpg"/>
+          <div class="inline-image"><img style="z-index: 2; margin-top: -200px;" src="assets/img/vcl.gif"/><div>
+        </div>
+        Dieses Studienprojekt bietet Ihnen die Möglichkeit sich frei durch den Campus Lingen zu bewgegen.<br/>
+        Klicken Sie auf die <b>Minimap</b> (rechts unten im Bild), um eine Liste interessanter Sehenswürdigkeiten zu sehen. Hier können sie sich über die einzelnen Studiengänge des Hochschulstandortes informieren
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-success" data-dismiss="modal">Campus Rundgang starten</button>
       </div>
     </div>
   </div>
 </div>
+<script>
+  $(window).load(function(){
+    $("#minimap-hint-arrow").show("slide", 1500);
+  });
+</script>

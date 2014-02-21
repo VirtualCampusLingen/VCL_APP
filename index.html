@@ -14,6 +14,9 @@
     <script src="admin/assets/js/main.js"></script>
    </head>
   <body>
+  	<div id="minimap-overlay"></div>
+    <div id="minimap-hint-arrow"><img src="assets/img/arrow_hint.png"/></div>
+  	<div id="minimap-canvas"></div>
     <div id="map-canvas">
       <div id='info'></div>
     </div>
@@ -23,6 +26,7 @@
     $("#startUpModal").modal();
     $("#startUpModal").on('hidden.bs.modal', function () {
       $("#info").show();
+      $("#minimap-hint-arrow").hide();
     })
     $("#info").hide();
   });
