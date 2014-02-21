@@ -147,6 +147,10 @@ function addInfoIcon(infoTextObj){
     $("button[data-target='#temp']").attr("data-target", "#"+id).text(infoTextObj.infotext_title);
     $("#"+id+" .modal-title").text(infoTextObj.infotext_title);
     $("#"+id+" .modal-body").html(infoTextObj.infotext_text);
+    $("#"+id).on('shown.bs.modal', function () {
+      var parent_row = $("#"+id).parent(".info_row");
+      $(".modal-backdrop").appendTo(parent_row);
+    });
   })
 }
 
