@@ -31,7 +31,7 @@ error_reporting(null);
 					$poi_preview_image = $row['preview_image_path'];
 
 					echo '<a class="list-group-item poi" href="javascript:void(0)" onclick="initialize(' . $poi_panorama . ')" data-dismiss="modal">';
-					echo '<img class="media-object poi-preview" src="/admin/assets/img/poi_example.png" alt="poi-preview">';
+					echo '<img class="media-object poi-preview" height="55px" src="assets/img/campus_start.png" alt="poi-preview">';
 					echo '<h4 class="list-group-item-heading">' . $poi_name . '</h4>';
 					echo '<p class="list-group-item-text">' . $poi_description . '</p>';
 					echo '<div class="clear"></div>';
