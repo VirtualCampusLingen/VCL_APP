@@ -1,9 +1,11 @@
 
 var initPosPanoID, streetView;
-var initPanoId = 9;
+var initPanoId = getStartPano();
 
 function initialize(panoramaId) {
   panoramaId = String(panoramaId);
+  console.log(panoramaId);
+  console.log(initPanoId);
   var streetViewOptions = {
 
     zoom: 1,
@@ -123,6 +125,20 @@ function createCustomLink() {
       });
     }
   }
+}
+
+
+function getStartPano(){
+  if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+    var xhr = new XMLHttpRequest();
+  }else{// code for IE6, IE5
+    var xhr = new ActiveXObject("Microsoft.XMLHTTP");
+  }
+
+  xhr.open("GET", "admin/apis/start_pano.php?get_start_pano", false);
+  xhr.send();
+  var response = xhr.responseText;
+  return JSON.parse(response).start_pano;
 }
 
 function getPanoJson(panoID){

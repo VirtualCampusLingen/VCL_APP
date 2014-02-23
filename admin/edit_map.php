@@ -337,7 +337,10 @@ include '_boilerplate.html';
 								+ ")'>Nachbarn bearbeiten</button><br/>";
 						content += "<button type='button' class='btn btn-info btn-xs info_button' onclick='infotext_modal("
 								+ value.panoramaId
-								+ ")'>Infotext bearbeiten</button>";
+								+ ")'>Infotext bearbeiten</button><br/>";
+            content += "<button type='button' class='btn btn-success btn-xs info_button' onclick='setStartPano("
+                + value.panoramaId
+                + ")'>Als Startfoto festlegen</button>";
 
 						var infoWindow = new google.maps.InfoWindow(
 						{
@@ -397,6 +400,16 @@ include '_boilerplate.html';
 
     function pushToArrayUnlessExist(array, value){
       if($.inArray(value, array) == -1) array.push(value);
+    }
+
+    function setStartPano(panoramaId)
+    {
+      $.ajax({
+        url: 'apis/start_pano.php',
+        data: {'set_start_pano': panoramaId},
+        type: 'POST'
+      });
+      map.markerHash[panoramaId].infoWindow.close();
     }
 
 		function enterEditMode(panoramaId)
