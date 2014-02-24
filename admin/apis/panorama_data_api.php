@@ -33,7 +33,7 @@
       $info_texts = array();
       $i = 0;
       while ($row3 = mysql_fetch_assoc($pano_infotext)) {
-        $info_texts[$i] = array('infotext_title'=>$row3['title'],'infotext_text' => $row3['text']);
+        $info_texts[$i] = array('infotext_id'=>$row3['infotext_id'], 'infotext_title'=>$row3['title'],'infotext_text' => $row3['text']);
         $i++;
       }
   	}

@@ -4,8 +4,6 @@ var initPanoId = getStartPano();
 
 function initialize(panoramaId) {
   panoramaId = String(panoramaId);
-  console.log(panoramaId);
-  console.log(initPanoId);
   var streetViewOptions = {
 
     zoom: 1,
@@ -156,7 +154,7 @@ function getPanoJson(panoID){
 }
 
 function addInfoIcon(infoTextObj){
-  var id = Date.now()
+  var id = infoTextObj.infotext_id
   $("#info").appendPartial('info_modal.html', function(){
     $("#temp").attr("id", id);
     $("button[data-target='#temp']").attr("data-target", "#"+id).text(infoTextObj.infotext_title);
