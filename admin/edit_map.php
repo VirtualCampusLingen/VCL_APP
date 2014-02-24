@@ -414,7 +414,6 @@ include '_boilerplate.html';
 
 		function enterEditMode(panoramaId)
 		{
-			// TODO: Refactoring der AJAX-Parameter
 			$('#editPanel').show();
 			editMarker = map.markerHash[panoramaId];
 			editMarker.setIcon('assets/img/marker_blue.png');

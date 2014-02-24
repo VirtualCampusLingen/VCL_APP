@@ -10,7 +10,6 @@ function initialize(panoramaId) {
 
     zoom: 1,
     panoProvider:  getCustomPanorama,
-    // TODO: set to first panorama in DB
     pano:  panoramaId,
     mode: 'html5',
     pov : {
