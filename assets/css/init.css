@@ -52,8 +52,19 @@ body.modal-open {
 #minimap-hint-arrow {
   display: none;
   position: absolute;
-  bottom: 170px;
-  right: 0;
-  z-index: 1055;
+  bottom: 150px;
+  right: 100px;
+  z-index: 1040;
+}
+
+@media screen and (max-width: 1200px) {
+    #minimap-hint-arrow {
+        display: none !important;
+    }
+}
+
+#startUpImage {
+	width: 100%;
+	padding-bottom: 20px;
 }
 

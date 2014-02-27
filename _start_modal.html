@@ -3,28 +3,26 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="myModalLabel">Wilkommen im Projekt Virtueller Campus Lingen</h4>
+        <h3 class="modal-title" id="myModalLabel">Wilkommen am virtuellen Campus Lingen</h3>
       </div>
       <div class="modal-body">
-        <div>
-          <img src="assets/img/campus_start.png"/>
-          <div class="inline-image"><img style="z-index: 2; margin-top: -250px;" src="assets/img/vcl.gif"/><div>
-        </div>
-        Dieses Studienprojekt bietet Ihnen die Möglichkeit sich frei durch den Campus Lingen zu bewgegen.
-        Klicken Sie auf die <b>Karte</b> (rechts unten im Bild), um eine Liste interessanter Sehenswürdigkeiten zu sehen. Hier können sie sich über die einzelnen Studiengänge des Hochschulstandortes informieren.
-        <br/>
-        <div class="well" style="padding: 5px;">
-        Eine optimale Darstellung kann nur in aktuellen Internetbrowsern garantiert werden. Es wird empfohlen <b>Google Chrome</b> ab der Version 30 für diese Anwedung zu verwenden.
+        <img  id="startUpImage" src="assets/img/campus_start.png"/>
+        <p align="justify">Dieses Studienprojekt bietet Ihnen die Möglichkeit sich frei durch den Campus Lingen zu bewgegen.
+        Klicken Sie auf die <b>Karte</b> (rechts unten im Bild), um eine Liste interessanter Sehenswürdigkeiten zu sehen.
+        Hier können sie sich über die einzelnen Studiengänge des Hochschulstandortes informieren.</p>
+        <div class="well" style="padding: 5px; margin: 0; margin-top: 10px;">
+        <p align="justify">Eine optimale Darstellung kann nur in aktuellen Internetbrowsern garantiert werden.
+        Es wird empfohlen <b>Google Chrome</b> ab der Version 30 für diese Anwedung zu verwenden.</p>
         </div>
       </div>
-      <div style="padding: 17px 19px 5px;" class="modal-footer">
-        <button type="button" class="btn btn-success" data-dismiss="modal">Campus Rundgang starten</button>
+      <div class="modal-footer" style="margin: 0">
+        <button type="button" class="btn btn-success" data-dismiss="modal">Campusrundgang starten</button>
       </div>
     </div>
   </div>
 </div>
 <script>
   $(window).load(function(){
-    $("#minimap-hint-arrow").show("slide", 1500);
+    $("#minimap-hint-arrow").show("puff", 1500);
   });
 </script>
