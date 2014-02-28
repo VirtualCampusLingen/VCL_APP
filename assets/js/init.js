@@ -1,4 +1,3 @@
-
 var initPosPanoID, streetView;
 var initPanoId = getStartPano();
 
@@ -35,7 +34,6 @@ function initialize(panoramaId) {
   $("body").appendPartial('poi_modal.php');
 
   google.maps.event.addListener(streetView, "links_changed", createCustomLink);
-  google.maps.event.addListener(streetView, "pano_changed", preLoadImg);
   google.maps.event.addListener(streetView, "position_changed", resetMinimap);
   $("#minimap-overlay").click(function(){
   	showPOI();
@@ -52,26 +50,9 @@ function showPOI()
 	$("#poi_modal").modal();
 }
 
-function preLoadImg(){
-  var panoID = streetView.getPano();
-  var panoJson = getPanoJson(panoID);
-  var neighbours = panoJson.neighbours;
-  for(key in neighbours){
-    if (neighbours.hasOwnProperty(key)){
-      var obj = neighbours[key];
-      $.ajax({
-        url: 'admin/'+obj.path,
-        success: function(){
-          $('<img/>')[0].src = 'admin/'+obj.path
-        }
-      })
-    }
-  }
-}
-
 function getCustomPanoramaTileUrl(panoID, zoom, tileX, tileY) {
   // Return a pano image given the panoID.
-  return pano.path;
+  return pano.path + "/" + tileX + '-' +tileY + '.jpg';
 }
 
 function getCustomPanorama(panoID) {
@@ -93,8 +74,8 @@ function getCustomPanorama(panoID) {
       latLng: new google.maps.LatLng(panoJson.position_lat, panoJson.position_lng)
     },
     tiles: {
-        tileSize: new google.maps.Size(2048, 1024),
-        worldSize: new google.maps.Size(2048, 1024),
+        tileSize: new google.maps.Size(512, 512),
+        worldSize: new google.maps.Size(4096, 2048),
         getTileUrl: getCustomPanoramaTileUrl
      }
   };
