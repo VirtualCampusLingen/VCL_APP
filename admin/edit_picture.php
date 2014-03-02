@@ -55,58 +55,38 @@ while($row = mysql_fetch_assoc($photos)){
 
 function uploadPhoto()
 {
-  global $notifications;
-  if(empty($_FILES['fileToUpload'])) return false;
-  if ($_FILES['fileToUpload']['error'] > 0)
-  {
-    switch ($_FILES['fileToUpload']['error']) {
-      case '1':
-        $error = "Foto ist zu groß";
-        break;
-      case '3':
-        $error = "Foto konnte nicht vollständig hochgeladen werden";
-        break;
-      case '4':
-        $error = "Kein Foto ausgewählt";
-        break;
-      case '7':
-        $error = "Foto konnte nicht gespeichert werden";
-        break;
-      default:
-        $error = "Unbekannter Fehler beim Foto upload. Fehlercode: ".$_FILES['fileToUpload']['error'];
-        break;
-    }
-    array_push($notifications["error"], $error);
-    return false;
-  }else
-  {
-    // array of valid extensions
-    $validExtensions = array('.jpg', '.jpeg', '.gif', '.png', '.JPG', '.JPEG', '.GIF', '.PNG');
-      // get extension of the uploaded file
-    $fileExtension = strrchr($_FILES['fileToUpload']['name'], ".");
-    // check if file Extension is on the list of allowed ones
-    if (in_array($fileExtension, $validExtensions))
-    {
-      //we are renaming the file so we can upload files with the same name
-      $newName = $_FILES['fileToUpload']['name'];
-      $panorama_path = 'assets/img_360/' . $newName;
-      $doubledPath = sql("SELECT * FROM panorama WHERE panorama_path = '$panorama_path'");
+  $validExtensions = array('.jpg', '.jpeg', '.gif', '.png');
 
-      if(mysql_num_rows($doubledPath) > 0) array_push($notifications["error"], "Es wurde bereits ein Panorama mit diesem Dateinamen hochgeladen");
-      else if(move_uploaded_file($_FILES['fileToUpload']['tmp_name'], $panorama_path))
-      {
-        chmod($panorama_path, 0644);
-        return $panorama_path;
+  $i = 0;
+  foreach ($_FILES as $array_value => $value_array) {
+    foreach ($value_array as $array_name => $array) {
+      foreach ($array as $key => $value) {
+        $photo_to_upload[$key][$array_name] .= $value; 
       }
     }
-    else
-    {
-      //echo 'Bitte wählen Sie ein Bild! (.jpg, .jpeg, .gif, .png)';
-      array_push($notifications["error"], "Kein Foto wurde ausgewählt (.jpg, .jpeg, .gif, .png)");
+  }
+  $date = date('Y-m-t-h-i-s');
+  $panorama_path = '/assets/img_360/pano_'.$date;
+  mkdir('assets/img_360/pano_'.$date, 0777);
+
+  foreach ($photo_to_upload as $key => $value) {
+    $fileExtension = strrchr($value['name'], ".");
+
+    if (in_array($fileExtension, $validExtensions)){
+      //Ordnernamen aus der ID zusammen bauen 
+      $panorama_name = $value['name'];
+      if(move_uploaded_file($value['tmp_name'], 'assets/img_360/pano_'.$date.'/'.$value['name'])) 
+      {
+        chmod($panorama_path."/".$panorama_name, 0777);
+      }
+    }
+    else{
+      //Ist kein Bild mit der vorgegebenen validExtensions 
+      die("Leider kein .jpg, .jpeg, .gif oder .png");
       return false;
     }
   }
-  return false;
+  return $panorama_path;
 }
 
 
@@ -189,8 +169,10 @@ foreach ($notifications as $type => $notfiy_array) {
         <h2>Neues Foto Hochladen</h2>
           <form class="form-inline" role="form" enctype="multipart/form-data" method="post">
             <div class="form-group">
-              <label class="sr-only" for="fileToUpload">File</label>
-              <input type="file" class="form-control" name="fileToUpload" id="fileToUpload">
+              <fieldset>
+                <label class="sr-only" for="fileToUpload">File</label>
+                <input type="file" class="form-control" name="fileToUpload[]" id="fileToUpload" multiple="multiple">
+              </fieldset>
             </div>
             <div class="form-group">
               <label class="sr-only" for="name">Name</label>
