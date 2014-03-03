@@ -30,7 +30,10 @@ if(isset($_POST['update_panorama'])){
   $name = mysql_real_escape_string($_POST['name']);
   $description = mysql_real_escape_string($_POST['photo_description']);
 
-  if($panorama_path = uploadPhoto()) $res = sql("UPDATE panorama SET panorama_path = '$panorama_path' WHERE panorama_id = $panorama_id");
+  if($_FILES){
+    $panorama_path = uploadPhoto();
+    $res = sql("UPDATE panorama SET panorama_path = '$panorama_path' WHERE panorama_id = $panorama_id");
+  }
   else if(!empty($name) || !empty($description)) $res = sql("UPDATE panorama SET name = '$name', description = '$description' WHERE panorama_id = $panorama_id");
   respondeToSql($res);
 }
@@ -79,7 +82,7 @@ function uploadPhoto()
       $panorama_name = $value['name'];
       if(move_uploaded_file($value['tmp_name'], 'assets/img_360/pano_'.$date.'/'.$value['name'])) 
       {
-	$oldmask = umask(0);
+        $oldmask = umask(0);
         chmod("assets/img_360/pano_".$date."/".$panorama_name, 0777);
         umask($oldmask);
       }
@@ -198,7 +201,7 @@ foreach ($notifications as $type => $notfiy_array) {
       <table class="table table-striped table-hover">
         <thead>
           <tr>
-            <th>Bild</th>
+            <th></th>
             <th>Name</th>
             <th>Beschreibung</th>
             <th>Hochgeladen am</th>
@@ -210,14 +213,7 @@ foreach ($notifications as $type => $notfiy_array) {
             foreach($photo as $key => $value){
               echo("
                 <tr id='photo_row_".$key."'>
-                  <td>
-                    <button type='button' class='btn btn-info btn-xs' onclick='togglePictureThumb(".$key.")'>
-                      <span class='glyphicon glyphicon-picture'></span> anzeigen
-                    </button>
-                    <span id=picture_thumb_".$key." style='display: none'>
-                      <img src='"."/admin/".$value["panorama_path"]."' width='300px' alt='' class='img-thumbnail'>
-                    </span>
-                  </td>
+                  <td></td>
                   <td id='name'>".htmlspecialchars($value["name"])."</td>
                   <td id='description'>".htmlspecialchars($value["description"])."</td>
                   <td id='uploaded_at'>".htmlspecialchars($value["uploaded_at"])."</td>
@@ -230,7 +226,7 @@ foreach ($notifications as $type => $notfiy_array) {
                   <form name='update_photo_row_".$key."' role='form' enctype='multipart/form-data' method='POST'>
                     <input type='hidden' name='update_panorama' value='".$key."'></input>
                     <td><button type='button' onclick='enableUpdatePano(this)' data-target='uploadPanoUpdate_".$key."' class='btn btn-primary btn-xs'>Panorama ändern</button></td>
-                    <td class='hiddenRow'><input type='file' name='fileToUpload' id='uploadPanoUpdate_".$key."' disabled/></td>
+                    <td class='hiddenRow'><input type='file' name='fileToUpload[]' id='uploadPanoUpdate_".$key."' multiple='multiple' disabled/></td>
                     <td><input class='toggleOnPanoUpload' name='name' value='".htmlspecialchars($value["name"])."'></input></td>
                     <td><input class='toggleOnPanoUpload' name='photo_description' value='".htmlspecialchars($value["description"])."'></input></td>
                     <td><span>".htmlspecialchars($value["uploaded_at"])."</span></td>
