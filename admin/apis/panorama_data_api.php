@@ -19,7 +19,7 @@
 		$position_lat = $row['position_lat'];
 		$position_lng = $row['position_lng'];
   		$photo_name = $row['name'];
-  		$path = "admin/".$row['panorama_path'];
+  		$path = $row['panorama_path'];
 
   		$sql2 = sql("SELECT *  FROM neighbour AS n INNER JOIN panorama AS p ON n.neighbour = p.panorama_id WHERE n.panorama = $id");
   		$neighbours = array();

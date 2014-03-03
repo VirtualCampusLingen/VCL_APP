@@ -74,8 +74,8 @@ function getCustomPanorama(panoID) {
       latLng: new google.maps.LatLng(panoJson.position_lat, panoJson.position_lng)
     },
     tiles: {
-        tileSize: new google.maps.Size(512, 512),
-        worldSize: new google.maps.Size(4096, 2048),
+        tileSize: new google.maps.Size(256, 256),
+        worldSize: new google.maps.Size(2048, 1024),
         getTileUrl: getCustomPanoramaTileUrl
      }
   };

@@ -66,8 +66,10 @@ function uploadPhoto()
     }
   }
   $date = date('Y-m-t-h-i-s');
-  $panorama_path = '/assets/img_360/pano_'.$date;
+  $panorama_path = 'admin/assets/img_360/pano_'.$date;
+  $oldmask = umask(0);
   mkdir('assets/img_360/pano_'.$date, 0777);
+  umask($oldmask);
 
   foreach ($photo_to_upload as $key => $value) {
     $fileExtension = strrchr($value['name'], ".");
@@ -77,7 +79,9 @@ function uploadPhoto()
       $panorama_name = $value['name'];
       if(move_uploaded_file($value['tmp_name'], 'assets/img_360/pano_'.$date.'/'.$value['name'])) 
       {
-        chmod($panorama_path."/".$panorama_name, 0777);
+	$oldmask = umask(0);
+        chmod("assets/img_360/pano_".$date."/".$panorama_name, 0777);
+        umask($oldmask);
       }
     }
     else{
