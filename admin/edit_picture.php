@@ -24,6 +24,7 @@ if(isset($_POST['Upload'])){
   }
 }
 
+
 //Update Panorama
 if(isset($_POST['update_panorama'])){
   $panorama_id = mysql_real_escape_string($_POST['update_panorama']);
@@ -31,6 +32,12 @@ if(isset($_POST['update_panorama'])){
   $description = mysql_real_escape_string($_POST['photo_description']);
 
   if($_FILES){
+    //delete old dir
+    $old_path = sql("SELECT panorama_path FROM panorama WHERE panorama_id = $panorama_id");
+    $old_path = mysql_fetch_assoc($old_path)['panorama_path'];
+    if(strpos($old_path,'admin') != -1) $old_path = explode('admin/', $old_path);
+    rrmdir($old_path[1]);
+    // new Path
     $panorama_path = uploadPhoto();
     $res = sql("UPDATE panorama SET panorama_path = '$panorama_path' WHERE panorama_id = $panorama_id");
   }
@@ -41,6 +48,13 @@ if(isset($_POST['update_panorama'])){
 //Delete Panorama
 if (isset($_POST['delete_panorama'])){
   $del_panorama_id = mysql_real_escape_string($_POST['delete_panorama']);
+  //delete old dir
+  $old_path = sql("SELECT panorama_path FROM panorama WHERE panorama_id = $del_panorama_id");
+  $old_path = mysql_fetch_assoc($old_path)['panorama_path'];
+  if(strpos($old_path,'admin') != -1) $old_path = explode('admin/', $old_path);
+  rrmdir($old_path[1]);
+
+  //Delete DB Entry
   $res = sql("DELETE FROM panorama WHERE panorama_id = $del_panorama_id");
   respondeToSql($res);
 }
@@ -94,6 +108,12 @@ function uploadPhoto()
     }
   }
   return $panorama_path;
+}
+
+function rrmdir($dir) { 
+  foreach(glob($dir . '/*') as $file) { 
+    if(is_dir($file)) rrmdir($file); else unlink($file); 
+  } rmdir($dir); 
 }
 
 
