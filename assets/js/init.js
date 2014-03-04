@@ -65,12 +65,28 @@ function getCustomPanorama(panoID) {
     }
   }
 
+  var panoDescription = "Etage: "
+  switch(panoJson.level){
+    case "0":
+      panoDescription += "EG";
+      break;
+    case "1":
+      panoDescription += "1 OG";
+      break;
+    case "2":
+      panoDescription += "2 OG";
+      break;
+    case "3":
+      panoDescription += "3 OG";
+      break;
+  }
+
   var streetViewPanoramaData = {
     links: [],
     copyright: 'Imagery (c) VCL',
     location: {
       pano: panoJson.id,
-      description: panoJson.description,
+      description: panoDescription,
       latLng: new google.maps.LatLng(panoJson.position_lat, panoJson.position_lng)
     },
     tiles: {
@@ -96,8 +112,12 @@ function createCustomLink() {
   for(key in neighbours){
     if (neighbours.hasOwnProperty(key)){
       var obj = neighbours[key];
+      var description = "";
+      if(obj.level > panoJson.level) description = "rauf";
+      else if (obj.level < panoJson.level) description = "runter";
+
       links.push({
-        description: obj.description,
+        description: description,
         pano: obj.neighbour_id,
         heading: obj.heading
       });

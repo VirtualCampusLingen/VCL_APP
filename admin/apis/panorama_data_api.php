@@ -12,7 +12,7 @@
 		$id = mysql_real_escape_string($_GET['id']);
 
 
-  	$sql1 = sql("SELECT panorama_id, X(position) AS position_lat, Y(position) AS position_lng , name, panorama_path FROM panorama WHERE panorama_id = $id");
+  	$sql1 = sql("SELECT panorama_id, X(position) AS position_lat, Y(position) AS position_lng , name, panorama_path, level FROM panorama WHERE panorama_id = $id");
 
   	while ($row = mysql_fetch_assoc($sql1)) {
   		$id = $row['panorama_id'];
@@ -20,12 +20,13 @@
 		$position_lng = $row['position_lng'];
   		$photo_name = $row['name'];
   		$path = $row['panorama_path'];
+      $level = $row['level'];
 
   		$sql2 = sql("SELECT *  FROM neighbour AS n INNER JOIN panorama AS p ON n.neighbour = p.panorama_id WHERE n.panorama = $id");
   		$neighbours = array();
       	$i = 0;
       	while ($row2 = mysql_fetch_assoc($sql2)) {
-        $neighbours[$i] = array('neighbour_id'=>$row2['neighbour'],'heading' => $row2['heading'],'description'=>"",'path'=> $row2['panorama_path']);
+        $neighbours[$i] = array('neighbour_id'=>$row2['neighbour'],'heading' => $row2['heading'],'level' => $row2['level'],'description'=>"",'path'=> $row2['panorama_path']);
         $i++;
 	    }
 
@@ -43,6 +44,7 @@
               'position_lat' => $position_lat,
               'position_lng' => $position_lng,
               'description' => $photo_name,
+              'level' => $level,
               'id' => $id,
               'neighbours' => $neighbours,
               'info_texts' => $info_texts
